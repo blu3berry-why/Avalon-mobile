@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/navigation"
+    app:startDestination="@id/nav_login">
+
+    <fragment
+        android:id="@+id/nav_login"
+        android:name="hu.blu3berry.avalon.view.auth.LoginFragment"
+        tools:layout="@layout/auth_login">
+        <action
+            android:id="@+id/on_login_action"
+            app:destination="@+id/nav_main_page">
+        </action>
+
+        <action
+            android:id="@+id/on_go_register_action"
+            app:destination="@+id/nav_register">
+        </action>
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_register"
+        android:name="hu.blu3berry.avalon.view.auth.RegisterFragment"
+        tools:layout="@layout/auth_register">
+        <action
+            android:id="@+id/on_register_action"
+            app:destination="@+id/nav_main_page">
+        </action>
+        <action
+            android:id="@+id/on_back_to_login_action"
+            app:destination="@+id/nav_login">
+        </action>
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_main_page"
+        android:name="hu.blu3berry.avalon.view.StartPageFragment"
+        tools:layout="@layout/start_page">
+        <action
+            android:id="@+id/on_join_lobby"
+            app:destination="@+id/nav_lobby_main">
+        </action>
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_lobby_main"
+        android:name="hu.blu3berry.avalon.view.lobby.LobbyFragment"
+        tools:layout="@layout/lobby_main">
+
+        <action
+            android:id="@+id/on_leave_lobby_action"
+            app:destination="@+id/nav_main_page">
+        </action>
+        <action
+            android:id="@+id/on_settings_action"
+            app:destination="@+id/nav_lobby_settings">
+        </action>
+        <action
+            android:id="@+id/on_lobby_started_action"
+            app:destination="@+id/nav_game_main">
+        </action>
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_lobby_settings"
+        android:name="hu.blu3berry.avalon.view.lobby.LobbySettingsFragment"
+        tools:layout="@layout/lobby_settings">
+        <action
+            android:id="@+id/on_back_to_lobby_main"
+            app:destination="@+id/nav_lobby_main">
+        </action>
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_game_main"
+        android:name="hu.blu3berry.avalon.view.game.GameMainFragment"
+        tools:layout="@layout/game_main">
+        <action
+            android:id="@+id/on_character_action"
+            app:destination="@+id/nav_character">
+        </action>
+        <action
+            android:id="@+id/on_vote_action"
+            app:destination="@+id/nav_vote">
+        </action>
+        <action
+            android:id="@+id/on_adventure_vote_action"
+            app:destination="@+id/nav_vote_on_adventure">
+        </action>
+        <action
+        android:id="@+id/on_game_select_action"
+        app:destination="@id/nav_select">
+    </action>
+
+        <action
+            android:id="@+id/on_game_good_win"
+            app:destination="@id/nav_good_win">
+        </action>
+
+        <action
+            android:id="@+id/on_game_evil_win"
+            app:destination="@id/nav_evil_win">
+        </action>
+    </fragment>
+
+
+    <fragment
+        android:id="@+id/nav_select"
+        android:name="hu.blu3berry.avalon.view.game.SelectFragment"
+        tools:layout="@layout/game_select">
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_assassin_guess"
+        android:name="hu.blu3berry.avalon.view.game.AssassinGuessFragment"
+        tools:layout="@layout/game_assassin_guess">
+        <action
+            android:id="@+id/on_back_to_character"
+            app:destination="@+id/nav_character">
+        </action>
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_character"
+        android:name="hu.blu3berry.avalon.view.game.CharacterFragment"
+        tools:layout="@layout/game_character">
+        <action
+            android:id="@+id/on_assassin_guess_action"
+            app:destination="@+id/nav_assassin_guess">
+        </action>
+    </fragment>
+
+
+    <fragment
+        android:id="@+id/nav_vote"
+        android:name="hu.blu3berry.avalon.view.game.VoteFragment"
+        tools:layout="@layout/game_vote">
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_vote_on_adventure"
+        android:name="hu.blu3berry.avalon.view.game.VoteOnAdventureFragment"
+        tools:layout="@layout/game_vote_on_adventure">
+    </fragment>
+
+
+
+    <fragment
+        android:id="@+id/nav_evil_win"
+        android:name="hu.blu3berry.avalon.view.endscreens.EvilWinFragment"
+        tools:layout="@layout/game_evil_win">
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_good_win"
+        android:name="hu.blu3berry.avalon.view.endscreens.GoodWinFragment"
+        tools:layout="@layout/game_good_win">
+        <action
+            android:id="@+id/on_good_win_assassin_guess"
+            app:destination="@+id/nav_assassin_guess">
+
+        </action>
+    </fragment>
+
+    <action
+        android:id="@+id/on_back_to_game_main"
+        app:destination="@+id/nav_game_main">
+    </action>
+
+    <action
+        android:id="@+id/on_back_to_main_screen"
+        app:destination="@+id/nav_main_page">
+    </action>
+
+</navigation>

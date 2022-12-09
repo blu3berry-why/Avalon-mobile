@@ -42,7 +42,7 @@ class StartPageFragment : Fragment() {
             viewModel.createLobby().observe(viewLifecycleOwner) { response ->
                 when (response.status) {
                     Status.SUCCESS -> {
-                        val lc = response.data!!.lobbyCode
+                        val lc = response.data!!.code
                         viewModel.joinLobby(lc).observe(viewLifecycleOwner) {
                             when (it.status) {
                                 Status.SUCCESS -> {

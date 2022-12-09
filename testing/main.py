@@ -9,8 +9,8 @@ import requests
 
 os.environ['NO_PROXY'] = '127.0.0.1'
 
-# url = 'http://127.0.0.1:3000'
-url = 'https://ktor-avalon-rest.herokuapp.com'
+url = 'http://localhost:62341'
+#url = 'https://ktor-avalon-rest.herokuapp.com'
 
 yes_vote = {
     'username': 'valami',

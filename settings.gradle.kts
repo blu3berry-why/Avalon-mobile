@@ -34,6 +34,9 @@ plugins {
     id("org.gradle.toolchains.foojay-resolver-convention") version "1.0.0"
 }
 
-// Phase 0 skeleton — features/core added in later phases.
 include(":composeApp")
 include(":androidApp")
+
+// Phase 1 — data layer foundation (batch 1: infra only).
+include(":core:domain")
+include(":core:data")

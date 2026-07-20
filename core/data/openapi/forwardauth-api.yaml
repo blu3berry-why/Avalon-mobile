@@ -1,0 +1,119 @@
+# Hand-written contract for the ForwardAuth service — NOT served by avalon-spring.
+#
+# ForwardAuth is a separate Python/Flask service (Traefik forward-auth middleware)
+# that owns authentication. It has no OpenAPI generation, so this spec is maintained
+# by hand. Source of truth: `ForwardAuth/app.py` in the Avalon-Boardgame-with-Kubernetes
+# deploy repo. Kept here so Phase 1 (kmpgen) has both client contracts — this one and
+# avalon-spring's generated `openapi.json` — in one place.
+openapi: 3.0.1
+info:
+  title: Avalon ForwardAuth API
+  version: 0.1.0
+  description: >
+    Authentication service for Avalon, deployed as a Traefik forward-auth
+    middleware. Owns login/register and issues JWTs.
+
+
+    The KMP client calls `/login` and `/register` directly, stores the returned
+    JWT, and sends it as `Authorization: Bearer <token>` on every subsequent
+    call to the Avalon game API (avalon-spring). On those downstream requests
+    Traefik calls `GET /auth` to validate the token and injects the
+    `Avalon-Header-Logged-In-User-Username` header for the backend — which is
+    why that header is absent from the avalon-spring contract (the client never
+    sets it).
+servers:
+  - url: /
+    description: Auth service root (behind the gateway)
+paths:
+  /login:
+    post:
+      operationId: login
+      summary: Authenticate and receive a JWT
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Credentials'
+      responses:
+        '200':
+          description: Authenticated. Returns the username and a JWT valid for 24h.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenResponse'
+        '403':
+          description: Wrong password.
+        '404':
+          description: No user exists with this username.
+  /register:
+    post:
+      operationId: register
+      summary: Create a new account
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Registration'
+      responses:
+        '200':
+          description: Account created.
+        '409':
+          description: Username already in use.
+  /auth:
+    get:
+      operationId: validateToken
+      summary: (Gateway-internal) Validate the bearer token
+      description: >
+        Called by the Traefik forward-auth middleware, not by the client
+        directly. Validates the `Authorization: Bearer <jwt>` header; on success
+        the gateway injects `Avalon-Header-Logged-In-User-Username` into the
+        downstream request to avalon-spring.
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Token valid.
+        '403':
+          description: Missing, malformed, or expired token.
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    Credentials:
+      type: object
+      required: [username, password]
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+    Registration:
+      type: object
+      required: [username, password]
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+        email:
+          type: string
+          description: Optional. Defaults to an empty string server-side.
+        friends:
+          type: array
+          description: Optional. Defaults to an empty list server-side.
+          items:
+            type: string
+    TokenResponse:
+      type: object
+      required: [username, token]
+      properties:
+        username:
+          type: string
+        token:
+          type: string
+          description: JWT (HS256), expires 24h after issue.

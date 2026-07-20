@@ -20,12 +20,14 @@ class BuildKonfigConventionPlugin : Plugin<Project> {
                 packageName.set(target.pathToPackageName())
 
                 defaultConfigs {
-                    buildConfigField(Type.STRING, "BASE_URL", devBaseUrl())
+                    buildConfigField(Type.STRING, "GAME_BASE_URL", devGameBaseUrl())
+                    buildConfigField(Type.STRING, "AUTH_BASE_URL", devAuthBaseUrl())
                 }
 
                 when (flavor) {
                     "staging" -> defaultConfigs("staging") {
-                        buildConfigField(Type.STRING, "BASE_URL", stagingBaseUrl())
+                        buildConfigField(Type.STRING, "GAME_BASE_URL", stagingGameBaseUrl())
+                        buildConfigField(Type.STRING, "AUTH_BASE_URL", stagingAuthBaseUrl())
                     }
                     "dev" -> { /* default already applied */ }
                     else -> error(
@@ -37,14 +39,21 @@ class BuildKonfigConventionPlugin : Plugin<Project> {
         }
     }
 
+    // Two base URLs because Avalon runs two services: avalon-spring serves the game/lobby/user
+    // endpoints, ForwardAuth serves login/register. Ports match docker-compose.yml in the
+    // deploy repo (game 48080:8080, forwardauth 5000:5000).
+    //
     // Trailing slash is required: Ktor's DefaultRequest plugin merges the base into the
     // request URL via RFC-3986 relative-resolution, which treats a base without trailing
     // slash as a "file" and drops its last segment when the request URL has its own path.
-    // Without the slash, `/api/v1` + appendPathSegments("auth","login") becomes
-    // `/api/auth/login` — server returns 404 → ViewModel shows "something went wrong".
-    private fun devBaseUrl(): String = "http://localhost:8080/api/v1/"
+    // Avalon's endpoints hang off the root (no `/api/v1` prefix).
+    private fun devGameBaseUrl(): String = "http://localhost:48080/"
 
-    // Staging URL is a placeholder pending B1c-deploy Coolify provisioning;
-    // mirrors dev for now so the staging build still resolves a usable URL.
-    private fun stagingBaseUrl(): String = "http://localhost:8080/api/v1/"
+    private fun devAuthBaseUrl(): String = "http://localhost:5000/"
+
+    // Staging URLs are placeholders pending Coolify provisioning; they mirror dev so the
+    // staging build still resolves a usable URL.
+    private fun stagingGameBaseUrl(): String = "http://localhost:48080/"
+
+    private fun stagingAuthBaseUrl(): String = "http://localhost:5000/"
 }

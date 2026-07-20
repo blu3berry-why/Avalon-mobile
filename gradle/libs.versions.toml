@@ -59,6 +59,9 @@ projectMinSdkVersion = "26"
 projectTargetSdkVersion = "36"
 projectCompileSdkVersion = "36"
 projectVersionCode = "1"
+# Java/JVM bytecode level. Drives sourceCompatibility, targetCompatibility and every
+# jvmTarget across the convention plugins and the build-logic build itself.
+projectJavaVersion = "17"
 
 # Desktop Version
 desktopPackageName = "Avalon"

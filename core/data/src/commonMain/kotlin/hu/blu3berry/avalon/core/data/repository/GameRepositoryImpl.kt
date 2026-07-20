@@ -4,7 +4,6 @@ import hu.blu3berry.avalon.core.data.generated.game.api.GameControllerApi
 import hu.blu3berry.avalon.core.data.generated.game.models.AssassinGuess
 import hu.blu3berry.avalon.core.data.generated.game.models.SingleVote
 import hu.blu3berry.avalon.core.data.generated.game.models.generated.*
-import hu.blu3berry.avalon.core.data.network.emitLogoutOnUnauthorized
 import hu.blu3berry.avalon.core.data.network.toResult
 import hu.blu3berry.avalon.core.domain.model.Character
 import hu.blu3berry.avalon.core.domain.model.GameInfo
@@ -13,7 +12,6 @@ import hu.blu3berry.avalon.core.domain.result.DataError
 import hu.blu3berry.avalon.core.domain.result.EmptyResult
 import hu.blu3berry.avalon.core.domain.result.Result
 import hu.blu3berry.avalon.core.domain.result.asEmptyDataResult
-import hu.blu3berry.avalon.core.domain.result.map
 import hu.blu3berry.avalon.core.domain.session.SessionManager
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -49,15 +47,11 @@ class GameRepositoryImpl(
 
     override suspend fun getGameInfo(lobbyCode: String): Result<GameInfo, DataError.Network> =
         GameControllerApi.getGameInfo(lobbyCode = lobbyCode)
-            .toResult()
-            .emitLogoutOnUnauthorized(sessionManager)
-            .map { dto -> dto.toDomain() }
+            .toResult(sessionManager) { dto -> dto.toDomain() }
 
     override suspend fun getCharacter(lobbyCode: String): Result<Character, DataError.Network> =
         GameControllerApi.getCharacter(lobbyCode = lobbyCode)
-            .toResult()
-            .emitLogoutOnUnauthorized(sessionManager)
-            .map { dto -> dto.toDomain() }
+            .toResult(sessionManager) { dto -> dto.toDomain() }
 
     override suspend fun voteOnTeam(
         lobbyCode: String,
@@ -68,8 +62,7 @@ class GameRepositoryImpl(
             lobbyCode = lobbyCode,
             body = SingleVote(username = username, uservote = approve),
         )
-            .toResult()
-            .emitLogoutOnUnauthorized(sessionManager)
+            .toResult(sessionManager)
             .asEmptyDataResult()
 
     override suspend fun voteOnAdventure(
@@ -81,8 +74,7 @@ class GameRepositoryImpl(
             lobbyCode = lobbyCode,
             body = SingleVote(username = username, uservote = succeed),
         )
-            .toResult()
-            .emitLogoutOnUnauthorized(sessionManager)
+            .toResult(sessionManager)
             .asEmptyDataResult()
 
     override suspend fun selectForAdventure(
@@ -90,8 +82,7 @@ class GameRepositoryImpl(
         players: List<String>,
     ): EmptyResult<DataError.Network> =
         GameControllerApi.selectForAdventure(lobbyCode = lobbyCode, body = players)
-            .toResult()
-            .emitLogoutOnUnauthorized(sessionManager)
+            .toResult(sessionManager)
             .asEmptyDataResult()
 
     override suspend fun guessMerlin(
@@ -99,8 +90,7 @@ class GameRepositoryImpl(
         username: String,
     ): EmptyResult<DataError.Network> =
         GameControllerApi.assassin(lobbyCode = lobbyCode, body = AssassinGuess(guess = username))
-            .toResult()
-            .emitLogoutOnUnauthorized(sessionManager)
+            .toResult(sessionManager)
             .asEmptyDataResult()
 
     companion object {

@@ -13,28 +13,45 @@ import hu.blu3berry.avalon.core.domain.session.AuthEvent
 import hu.blu3berry.avalon.core.domain.session.SessionManager
 
 /**
- * Bridge from kmpgen-generated responses (`Either<CallException, HttpCallResponse<D>>`) to the
- * domain `Result`. Every repository goes through this, which keeps arrow + the kmpgen
- * companion types out of the domain layer.
+ * The one call every repository method makes: bridges a kmpgen response
+ * (`Either<CallException, HttpCallResponse<D>>`) onto the domain `Result`, reports an expired
+ * session, and maps the payload onto its domain type.
+ *
+ * Keeping the three steps together is what stops arrow and the kmpgen companion types from
+ * leaking past this file, and means no call site can forget the 401 handling.
+ *
+ * A 401 means the gateway rejected the JWT (expired, or revoked with the account). kmpgen's
+ * `eitherRequest` folds a non-2xx into `Left` before the `HttpClient` response validator would
+ * see it, so this is the only place that can raise the event.
+ */
+suspend fun <D, R> Either<CallException, HttpCallResponse<D>>.toResult(
+    sessionManager: SessionManager,
+    transform: (D) -> R,
+): Result<R, DataError.Network> = when (this) {
+    is Either.Right -> Result.Success(transform(value.data))
+    is Either.Left -> {
+        val error = value.toDataError()
+        if (error == DataError.Network.UNAUTHORIZED) {
+            sessionManager.emit(AuthEvent.SessionExpired)
+        }
+        Result.Failure(error)
+    }
+}
+
+/** [toResult] for responses whose payload needs no mapping (or is discarded). */
+suspend fun <D> Either<CallException, HttpCallResponse<D>>.toResult(
+    sessionManager: SessionManager,
+): Result<D, DataError.Network> = toResult(sessionManager) { it }
+
+/**
+ * The bridge without session handling, for the auth service: a 401 from `/login` means "wrong
+ * password", and raising a session-expired event on it would be wrong.
  */
 fun <D> Either<CallException, HttpCallResponse<D>>.toResult(): Result<D, DataError.Network> =
     fold(
         ifLeft = { exception -> Result.Failure(exception.toDataError()) },
         ifRight = { response -> Result.Success(response.data) },
     )
-
-/**
- * A 401 here means the gateway rejected the JWT (expired, or revoked with the account). The
- * `HttpClient` validator covers responses that go through it; kmpgen calls surface the status
- * as a `Left` instead, so repositories fan the same event out from this helper.
- */
-suspend fun <D> Result<D, DataError.Network>.emitLogoutOnUnauthorized(
-    sessionManager: SessionManager,
-): Result<D, DataError.Network> = also {
-    if (this is Result.Failure && error == DataError.Network.UNAUTHORIZED) {
-        sessionManager.emit(AuthEvent.SessionExpired)
-    }
-}
 
 private fun CallException.toDataError(): DataError.Network = when (this) {
     is HttpCallException -> when (code) {

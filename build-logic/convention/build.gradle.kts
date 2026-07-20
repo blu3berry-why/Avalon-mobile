@@ -19,14 +19,18 @@ dependencies {
 
 }
 
+// Same `projectJavaVersion` the convention plugins hand to consumer modules, so build-logic
+// itself cannot drift from the projects it configures.
+val javaVersion = libs.versions.projectJavaVersion.get()
+
 java {
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_17
+    sourceCompatibility = JavaVersion.toVersion(javaVersion)
+    targetCompatibility = JavaVersion.toVersion(javaVersion)
 }
 
 kotlin {
     compilerOptions {
-        jvmTarget = JvmTarget.JVM_17
+        jvmTarget = JvmTarget.fromTarget(javaVersion)
     }
 }
 

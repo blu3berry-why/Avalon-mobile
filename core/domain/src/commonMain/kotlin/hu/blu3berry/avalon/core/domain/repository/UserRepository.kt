@@ -10,7 +10,7 @@ import hu.blu3berry.avalon.core.domain.result.Result
  */
 interface UserRepository {
 
-    suspend fun getUser(username: String): Result<User, DataError.Network>
+    suspend fun get(username: String): Result<User, DataError.Network>
 
     suspend fun update(
         username: String,

@@ -5,6 +5,7 @@ import hu.blu3berry.avalon.core.data.network.AvalonJson
 import hu.blu3berry.avalon.core.data.network.createHttpClient
 import hu.blu3berry.avalon.core.data.session.SessionManagerImpl
 import hu.blu3berry.avalon.core.data.storage.InMemoryTokenStorage
+import hu.blu3berry.avalon.core.domain.model.GameInfo
 import hu.blu3berry.avalon.core.domain.model.Winner
 import hu.blu3berry.avalon.core.domain.result.DataError
 import hu.blu3berry.avalon.core.domain.result.Result
@@ -82,8 +83,8 @@ class GameRepositoryImplTest {
 
         val result = GameRepositoryImpl(sessionManager).getGameInfo("ABCD")
 
-        val info = assertIs<Result.Success<*, *>>(result).data
-        assertEquals(Winner.GOOD, (info as hu.blu3berry.avalon.core.domain.model.GameInfo).winner)
+        val info = assertIs<Result.Success<GameInfo, DataError.Network>>(result).data
+        assertEquals(Winner.GOOD, info.winner)
         assertEquals(listOf("arthur"), info.players)
     }
 
@@ -96,11 +97,11 @@ class GameRepositoryImplTest {
         val repository = GameRepositoryImpl(sessionManager, pollInterval = 10.milliseconds)
 
         repository.observeGameInfo("ABCD").test {
-            val first = assertIs<Result.Success<*, *>>(awaitItem()).data
-            assertEquals(Winner.NOT_DECIDED, (first as hu.blu3berry.avalon.core.domain.model.GameInfo).winner)
+            val first = assertIs<Result.Success<GameInfo, DataError.Network>>(awaitItem()).data
+            assertEquals(Winner.NOT_DECIDED, first.winner)
 
-            val second = assertIs<Result.Success<*, *>>(awaitItem()).data
-            assertEquals(Winner.GOOD, (second as hu.blu3berry.avalon.core.domain.model.GameInfo).winner)
+            val second = assertIs<Result.Success<GameInfo, DataError.Network>>(awaitItem()).data
+            assertEquals(Winner.GOOD, second.winner)
 
             expectNoEvents()
             cancelAndIgnoreRemainingEvents()
@@ -128,11 +129,36 @@ class GameRepositoryImplTest {
         repository.observeGameInfo("ABCD").test {
             assertEquals(
                 DataError.Network.SERVICE_UNAVAILABLE,
-                assertIs<Result.Failure<*, DataError.Network>>(awaitItem()).error,
+                assertIs<Result.Failure<GameInfo, DataError.Network>>(awaitItem()).error,
             )
-            assertIs<Result.Success<*, *>>(awaitItem())
+            assertIs<Result.Success<GameInfo, DataError.Network>>(awaitItem())
             cancelAndIgnoreRemainingEvents()
         }
+    }
+
+    @Test
+    fun `a 401 stops the poll loop instead of re-raising the event every tick`() = runTest {
+        val sessionManager = SessionManagerImpl()
+        var calls = 0
+        useEngine(
+            MockEngine {
+                calls++
+                respondError(HttpStatusCode.Unauthorized)
+            },
+            sessionManager,
+        )
+
+        val repository = GameRepositoryImpl(sessionManager, pollInterval = 10.milliseconds)
+
+        repository.observeGameInfo("ABCD").test {
+            assertEquals(
+                DataError.Network.UNAUTHORIZED,
+                assertIs<Result.Failure<GameInfo, DataError.Network>>(awaitItem()).error,
+            )
+            // The flow completes rather than polling on with a token the gateway has rejected.
+            awaitComplete()
+        }
+        assertEquals(1, calls)
     }
 
     @Test

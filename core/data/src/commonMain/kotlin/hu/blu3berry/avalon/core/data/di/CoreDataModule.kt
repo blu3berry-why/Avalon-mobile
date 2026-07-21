@@ -40,36 +40,27 @@ val coreDataModule: Module = module {
     // The kmpgen `Api` objects are process-wide singletons that build their own client, so
     // they are configured once here rather than injected. The game API and ForwardAuth are
     // separate deployments with separate base URLs, hence two `Api` objects.
-    single<ApiConfigurator> {
+    //
+    // `createdAtStart` because the generated `Api` objects are unusable until this has run and
+    // nothing else forces it: Koin builds it during `startKoin`, before any repository can be
+    // resolved. A repository added later inherits the guarantee without opting in.
+    single<ApiConfigurator>(createdAtStart = true) {
         ApiConfigurator(
             engine = get(),
             tokenStorage = get(),
         ).also { it.configure() }
     }
 
-    single<AuthRepository> {
-        get<ApiConfigurator>()
-        AuthRepositoryImpl(tokenStorage = get(), sessionManager = get())
-    }
-    single<UserRepository> {
-        get<ApiConfigurator>()
-        UserRepositoryImpl(sessionManager = get())
-    }
-    single<LobbyRepository> {
-        get<ApiConfigurator>()
-        LobbyRepositoryImpl(sessionManager = get())
-    }
-    single<GameRepository> {
-        get<ApiConfigurator>()
-        GameRepositoryImpl(sessionManager = get())
-    }
+    single<AuthRepository> { AuthRepositoryImpl(tokenStorage = get(), sessionManager = get()) }
+    single<UserRepository> { UserRepositoryImpl(sessionManager = get()) }
+    single<LobbyRepository> { LobbyRepositoryImpl(sessionManager = get()) }
+    single<GameRepository> { GameRepositoryImpl(sessionManager = get()) }
 }
 
 /**
  * Points both generated `Api` singletons at their deployment and at Avalon's client config.
- * Injected (and thereby run) by every repository binding — the generated `Api` objects are
- * unusable until this has happened, and Koin resolving it once is cheaper than each
- * repository re-checking.
+ * Bound `createdAtStart` so it has run before any repository can be resolved — the generated
+ * `Api` objects are unusable until then.
  */
 class ApiConfigurator(
     private val engine: HttpClientEngine,

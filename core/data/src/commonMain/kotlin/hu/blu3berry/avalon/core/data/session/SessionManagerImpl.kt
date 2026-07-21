@@ -10,5 +10,5 @@ class SessionManagerImpl : SessionManager {
     private val _events = MutableSharedFlow<AuthEvent>(extraBufferCapacity = 8)
     override val events: SharedFlow<AuthEvent> = _events.asSharedFlow()
 
-    override suspend fun emit(event: AuthEvent) { _events.tryEmit(event) }
+    override suspend fun emit(event: AuthEvent) { _events.emit(event) }
 }

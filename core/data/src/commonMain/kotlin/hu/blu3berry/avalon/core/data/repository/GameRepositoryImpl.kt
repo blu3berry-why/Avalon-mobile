@@ -36,11 +36,19 @@ class GameRepositoryImpl(
      * Errors are emitted, not thrown: a single failed poll (tunnel hiccup, backgrounded app)
      * must not tear down the collector, and `distinctUntilChanged` keeps a persistent failure
      * from re-emitting on every tick.
+     *
+     * A 401 is the exception — it means the token is dead, so every further poll is guaranteed
+     * to fail and would re-raise `AuthEvent.SessionExpired` on every tick. The loop stops after
+     * emitting it; the app is routing to login by then anyway.
      */
     override fun observeGameInfo(lobbyCode: String): Flow<Result<GameInfo, DataError.Network>> =
         flow {
             while (true) {
-                emit(getGameInfo(lobbyCode))
+                val result = getGameInfo(lobbyCode)
+                emit(result)
+                if (result is Result.Failure && result.error == DataError.Network.UNAUTHORIZED) {
+                    return@flow
+                }
                 delay(pollInterval)
             }
         }.distinctUntilChanged()

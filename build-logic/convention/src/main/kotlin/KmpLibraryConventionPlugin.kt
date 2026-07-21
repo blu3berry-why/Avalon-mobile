@@ -51,10 +51,9 @@ class KmpLibraryConventionPlugin: Plugin<Project> {
                 "kspCommonMainMetadata"(libs.findLibrary("blu3berry-kraft-ksp").get())
             }
 
-            tasks.matching { it.name == "kspDebugKotlinAndroid" }.configureEach {
-                dependsOn("kspCommonMainKotlinMetadata")
-            }
-            tasks.matching { it.name == "kspReleaseKotlinAndroid" }.configureEach {
+            tasks.matching {
+                it.name == "kspDebugKotlinAndroid" || it.name == "kspReleaseKotlinAndroid"
+            }.configureEach {
                 dependsOn("kspCommonMainKotlinMetadata")
             }
             // Wire commonMain KSP metadata generation as an input to all platform compile and

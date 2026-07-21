@@ -36,7 +36,7 @@ ksp {
 kotlin {
     sourceSets {
         commonMain {
-            kotlin.srcDir("build/generated/kmpgen")
+            kotlin.srcDir(layout.buildDirectory.dir("generated/kmpgen"))
             dependencies {
                 implementation(projects.core.domain)
 

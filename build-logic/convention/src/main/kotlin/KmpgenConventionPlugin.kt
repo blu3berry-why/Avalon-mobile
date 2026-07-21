@@ -9,14 +9,14 @@ class KmpgenConventionPlugin : Plugin<Project> {
         // as a dependency of the KSP / compile tasks that consume those files. Wire the chain
         // explicitly: kmpgenGenerateAll + kmpgenPrepare must run before any ksp* / compile*Kotlin*
         // task in the same project.
-        afterEvaluate {
-            tasks.matching { task ->
-                val n = task.name
-                n.startsWith("ksp") || (n.startsWith("compile") && n.contains("Kotlin"))
-            }.configureEach {
-                dependsOn("kmpgenGenerateAll")
-                dependsOn("kmpgenPrepare")
-            }
+        // No afterEvaluate: `tasks.matching {}.configureEach {}` is already lazy and picks up
+        // tasks registered later, and the dependsOn targets resolve by name at execution time.
+        tasks.matching { task ->
+            val n = task.name
+            n.startsWith("ksp") || (n.startsWith("compile") && n.contains("Kotlin"))
+        }.configureEach {
+            dependsOn("kmpgenGenerateAll")
+            dependsOn("kmpgenPrepare")
         }
     }
 }

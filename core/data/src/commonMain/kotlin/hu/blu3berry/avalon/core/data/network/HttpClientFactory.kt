@@ -4,6 +4,7 @@ import hu.blu3berry.avalon.core.data.storage.TokenStorage
 import io.ktor.client.HttpClient
 import io.ktor.client.HttpClientConfig
 import io.ktor.client.engine.HttpClientEngine
+import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.request.HttpRequestPipeline
 import io.ktor.http.HttpHeaders
 import kotlinx.serialization.json.Json
@@ -37,11 +38,27 @@ fun createHttpClient(
     decorator: HttpClientConfig<*>.() -> Unit = {},
 ): HttpClient = HttpClient(engine) {
     installKermitLogging()
+    install(HttpTimeout) {
+        requestTimeoutMillis = REQUEST_TIMEOUT_MILLIS
+        connectTimeoutMillis = CONNECT_TIMEOUT_MILLIS
+        socketTimeoutMillis = SOCKET_TIMEOUT_MILLIS
+    }
     decorator()
 }.also { client ->
     client.requestPipeline.intercept(HttpRequestPipeline.State) {
         tokenStorage.getToken()?.let { token ->
+            // Replace rather than append: the pipeline runs again for the same request builder
+            // on a retry, and two Authorization headers is a 400 from most gateways.
+            context.headers.remove(HttpHeaders.Authorization)
             context.headers.append(HttpHeaders.Authorization, "Bearer $token")
         }
     }
 }
+
+/**
+ * Without these a request can hang indefinitely — which for `GameRepositoryImpl`'s poll loop
+ * means the loop stops ticking with no error and no way for the UI to notice.
+ */
+private const val REQUEST_TIMEOUT_MILLIS = 30_000L
+private const val CONNECT_TIMEOUT_MILLIS = 10_000L
+private const val SOCKET_TIMEOUT_MILLIS = 30_000L

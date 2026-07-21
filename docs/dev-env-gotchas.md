@@ -6,7 +6,7 @@ Traps that cost time in this repo and are not visible from the code.
 
 **Symptom**
 
-```
+```text
 FAILURE: Build failed with an exception.
 * What went wrong:
 Gradle could not start your build.
@@ -49,5 +49,9 @@ These appear on every `:core:data` build and are not signal:
 - `KLIB resolver: The same 'unique_name=... ' found in more than one library`
   — androidx vs `org.jetbrains.compose` / `org.jetbrains.androidx` duplicates of
   `annotation`, `collection`, `lifecycle-*`.
-- `Cannot infer a bundle ID from packages of source files and exported
-  dependencies, use the bundle name instead: CoreData` — iOS framework linking.
+
+The `Cannot infer a bundle ID ... use the bundle name instead: CoreData` warning
+used to belong on this list. It is **fixed**, not suppressed: library modules no
+longer declare `binaries.framework`, so they build klibs only and `:composeApp`
+is the single module producing a framework. If it reappears, a convention plugin
+has started declaring a per-library framework again.

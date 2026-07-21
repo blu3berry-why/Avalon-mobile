@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Dev: backend is served over http. Tighten before any store release. -->
+<!--
+  Release default: no cleartext, anywhere. The debug source set overrides this file with a
+  variant that permits http to the local development backends only (see src/debug/res).
+-->
 <network-security-config>
-    <base-config cleartextTrafficPermitted="true" />
+    <base-config cleartextTrafficPermitted="false" />
 </network-security-config>

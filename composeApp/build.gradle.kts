@@ -9,8 +9,7 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
-                implementation(libs.bundles.koin.common)
-                implementation(libs.koin.compose)
+                implementation(libs.bundles.koin.compose.common)
                 implementation(libs.kotlinx.serialization.json)
 
                 implementation(compose.runtime)

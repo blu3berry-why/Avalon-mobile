@@ -92,6 +92,7 @@ class GameMainFragment : Fragment() {
                         setUI(it.data!!)
                         setVisibility(true)
                     }
+                    else -> {}
                 }
             }
         }

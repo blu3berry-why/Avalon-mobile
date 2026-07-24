@@ -76,6 +76,7 @@ class RegisterFragment: Fragment() {
 
                         }
                     }
+                    else -> {}
                 }
             }
 

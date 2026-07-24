@@ -51,6 +51,7 @@ class AssassinGuessFragment: Fragment(), UserSelectedListener{
                 Status.SUCCESS -> {
                     adapter.setItems(it.data!!.playersName)
                 }
+                else -> {}
             }
         }
 
@@ -65,6 +66,7 @@ class AssassinGuessFragment: Fragment(), UserSelectedListener{
                 Status.SUCCESS -> {
                     navController.navigate(R.id.on_back_to_character)
                 }
+                else -> {}
             }
         }
     }

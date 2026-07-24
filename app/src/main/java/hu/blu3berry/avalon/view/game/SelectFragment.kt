@@ -56,6 +56,7 @@ class SelectFragment : Fragment() {
                     Status.ERROR ->{
                         Log.d("choose", it.message ?: "error")
                     }
+                    else -> {}
                 }
             }
 
@@ -69,6 +70,7 @@ class SelectFragment : Fragment() {
                     binding.btnChoose.isEnabled = true
                     binding.tvSelectXPlayers.text = getString(R.string.select_x,count)
                 }
+                else -> {}
             }
         }
 

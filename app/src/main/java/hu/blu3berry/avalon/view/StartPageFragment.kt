@@ -49,6 +49,7 @@ class StartPageFragment : Fragment() {
                                     userUtils.lobbyCode = lc
                                     navController.navigate(R.id.on_join_lobby)
                                 }
+                                else -> {}
                             }
                         }
                     }
@@ -56,6 +57,7 @@ class StartPageFragment : Fragment() {
                     Status.ERROR -> {
                         binding.etLobbyCode.error = getString(R.string.err_join)
                     }
+                    else -> {}
                 }
             }
 
@@ -73,6 +75,7 @@ class StartPageFragment : Fragment() {
                         Status.ERROR -> {
                             binding.etLobbyCode.error = getString(R.string.err_not_found)
                         }
+                        else -> {}
                     }
                 }
         }

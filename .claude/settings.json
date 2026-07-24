@@ -1,0 +1,61 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__github__create_pull_request"
+    ]
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/session-start.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/cloud-mode-activate.sh\" start",
+            "timeout": 5,
+            "statusMessage": "Activating cloud caveman+ponytail modes..."
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/cloud-mode-activate.sh\" remind",
+            "timeout": 5
+          }
+        ]
+      }
+    ]
+  },
+  "extraKnownMarketplaces": {
+    "claude-plugins-official": {
+      "source": {
+        "source": "github",
+        "repo": "anthropics/claude-plugins-official"
+      }
+    },
+    "blu3berry-skills": {
+      "source": {
+        "source": "github",
+        "repo": "blu3berry-why/blu3berry-skills"
+      }
+    }
+  },
+  "enabledPlugins": {
+    "context7@claude-plugins-official": true,
+    "superpowers@blu3berry-skills": true,
+    "compound-engineering@blu3berry-skills": true,
+    "caveman@blu3berry-skills": true,
+    "ponytail@blu3berry-skills": true,
+    "android-kmp@blu3berry-skills": true,
+    "kraft@blu3berry-skills": true,
+    "figma-design@blu3berry-skills": true,
+    "workflow@blu3berry-skills": true
+  }
+}

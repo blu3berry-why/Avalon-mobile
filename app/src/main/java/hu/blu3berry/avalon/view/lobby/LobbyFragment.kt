@@ -71,6 +71,7 @@ class LobbyFragment : Fragment() {
                     Status.SUCCESS -> {
                         navController.navigate(R.id.on_lobby_started_action)
                     }
+                    else -> {}
                 }
             }
 
@@ -112,6 +113,7 @@ class LobbyFragment : Fragment() {
                             navController.navigate(R.id.on_lobby_started_action)
                         }
                     }
+                    else -> {}
                 }
             }
         }

@@ -39,6 +39,10 @@ Reviewer suggestions that are *style* improvements to these shapes (e.g. `Nothin
 ./gradlew :core:data:kmpgenGenerateAll
 ```
 
+In Claude Code on the web, `.claude/hooks/session-start.sh` bootstraps the Android
+SDK into `/opt/android-sdk`, writes `local.properties`, and warms the Gradle
+distribution named in `gradle/wrapper/gradle-wrapper.properties`.
+
 Gradle **cannot run inside the agent sandbox** (socket bind denial, not filesystem — `./gradlew --version` succeeding proves nothing). See `docs/dev-env-gotchas.md` before debugging build failures, and for the list of pre-existing warnings that are noise.
 
 ## Architecture

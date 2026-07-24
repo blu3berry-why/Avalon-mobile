@@ -46,6 +46,7 @@ class LobbySettingsFragment:Fragment() {
                     Status.SUCCESS -> {
                         navController.navigate(R.id.on_back_to_lobby_main)
                     }
+                    else -> {}
                 }
             }
 
@@ -64,6 +65,7 @@ class LobbySettingsFragment:Fragment() {
                     binding.swOberon.isChecked = settings.oberon
                     binding.swPercival.isChecked = settings.percival
                 }
+                else -> {}
             }
         }
     }

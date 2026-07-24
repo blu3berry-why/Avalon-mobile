@@ -3,13 +3,12 @@
 # builds in Claude Code on the web don't stall on first-time downloads.
 # Ported from Re-Claw; this repo has a single Gradle root.
 #
-# Design: remote-only, synchronous, idempotent, and NON-FATAL. A blocked host or
-# incompatible JVM must warn, not abort session start.
+# Also bootstraps the Android SDK (cmdline-tools + licenses + local.properties)
+# into /opt/android-sdk — the web container ships no SDK; AGP auto-installs the
+# platform/build-tools it needs during the first build once licenses are accepted.
 #
-# Known ceiling: this repo pins Gradle 7.0.2 / AGP 7.0.3, which require Java <= 16
-# to run, while the web container ships only Java 21. Until the wrapper/AGP are
-# upgraded (or the environment adds an older JDK), the warm-up detects this and
-# skips with a WARN instead of wasting time on a doomed download.
+# Design: remote-only, synchronous, idempotent, and NON-FATAL. A blocked host or
+# missing tool must warn, not abort session start.
 set -uo pipefail
 
 # Claude Code on the web only — local checkouts already have warm caches.
@@ -49,25 +48,32 @@ seed_dist_from_local() {
   log "seeded Gradle $ver distribution from $src"
 }
 
+# Android SDK: install cmdline-tools and accept licenses if missing.
+SDK_ROOT=/opt/android-sdk
+if [ ! -d "$SDK_ROOT/cmdline-tools/latest" ]; then
+  log "installing Android SDK cmdline-tools ..."
+  TOOLS_ZIP=$(mktemp -u /tmp/cmdtools-XXXX.zip)
+  if curl -fsSLo "$TOOLS_ZIP" https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip \
+     && mkdir -p "$SDK_ROOT/cmdline-tools" \
+     && unzip -q "$TOOLS_ZIP" -d "$SDK_ROOT/cmdline-tools" \
+     && mv "$SDK_ROOT/cmdline-tools/cmdline-tools" "$SDK_ROOT/cmdline-tools/latest"; then
+    log "cmdline-tools installed"
+  else
+    log "WARN: could not install Android SDK cmdline-tools (dl.google.com blocked?) — Android builds will fail until it is available."
+  fi
+  rm -f "$TOOLS_ZIP"
+fi
+if [ -x "$SDK_ROOT/cmdline-tools/latest/bin/sdkmanager" ] && [ ! -f "$SDK_ROOT/licenses/android-sdk-license" ]; then
+  yes | "$SDK_ROOT/cmdline-tools/latest/bin/sdkmanager" --sdk_root="$SDK_ROOT" --licenses >/dev/null 2>&1 || true
+fi
+[ -f "$ROOT/local.properties" ] || echo "sdk.dir=$SDK_ROOT" > "$ROOT/local.properties"
+
 if [ ! -x "$ROOT/gradlew" ]; then
   log "no gradlew, nothing to warm"
   exit 0
 fi
 
 VER=$(sed -n 's#.*/gradle-\([0-9][0-9.]*\)-bin\.zip#\1#p' "$ROOT/gradle/wrapper/gradle-wrapper.properties" 2>/dev/null | head -1)
-
-# Gradle < 7.3 cannot run on Java 17+; bail early with a clear message instead of
-# downloading a distribution that can't start.
-JAVA_MAJOR=$(java -version 2>&1 | sed -n 's/.*version "\([0-9]*\).*/\1/p' | head -1)
-case "$VER" in
-  7.[012]*|[0-6].*)
-    if [ "${JAVA_MAJOR:-0}" -gt 16 ]; then
-      log "WARN: Gradle $VER needs Java <= 16 but only Java $JAVA_MAJOR is installed — skipping warm-up. Upgrade the Gradle wrapper/AGP to build in web sessions."
-      exit 0
-    fi
-    ;;
-esac
-
 seed_dist_from_local "$ROOT" "$VER"
 log "warming Gradle (distribution + plugin classpath) ..."
 if ( cd "$ROOT" && ./gradlew --console=plain --quiet help ); then

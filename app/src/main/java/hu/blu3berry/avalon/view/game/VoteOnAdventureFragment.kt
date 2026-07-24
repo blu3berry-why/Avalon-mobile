@@ -50,6 +50,7 @@ class VoteOnAdventureFragment : Fragment() {
                     Status.SUCCESS -> {
                         navController.navigate(R.id.on_back_to_game_main)
                     }
+                    else -> {}
                 }
             }
         }
@@ -64,6 +65,7 @@ class VoteOnAdventureFragment : Fragment() {
                     Status.SUCCESS -> {
                         navController.navigate(R.id.on_back_to_game_main)
                     }
+                    else -> {}
                 }
             }
         }

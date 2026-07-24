@@ -46,6 +46,7 @@ class VoteFragment : Fragment() {
                     adapter.setItems(it.data!!.selectedForAdventure)
                     binding.textView2.text = getString(R.string.king_selected, it.data.king)
                 }
+                else -> {}
             }
         }
 
@@ -58,6 +59,7 @@ class VoteFragment : Fragment() {
                     Status.SUCCESS -> {
                         navController.navigate(R.id.on_back_to_game_main)
                     }
+                    else -> {}
                 }
             }
 
@@ -71,6 +73,7 @@ class VoteFragment : Fragment() {
                     Status.SUCCESS -> {
                         navController.navigate(R.id.on_back_to_game_main)
                     }
+                    else -> {}
                 }
             }
         }

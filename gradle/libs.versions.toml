@@ -1,0 +1,268 @@
+#  ▄█    █▄     ▄████████    ▄████████    ▄████████  ▄█   ▄██████▄  ███▄▄▄▄      ▄████████
+#  ███    ███   ███    ███   ███    ███   ███    ███ ███  ███    ███ ███▀▀▀██▄   ███    ███
+#  ███    ███   ███    █▀    ███    ███   ███    █▀  ███▌ ███    ███ ███   ███   ███    █▀
+#  ███    ███  ▄███▄▄▄      ▄███▄▄▄▄██▀   ███        ███▌ ███    ███ ███   ███   ███
+#  ███    ███ ▀▀███▀▀▀     ▀▀███▀▀▀▀▀   ▀███████████ ███▌ ███    ███ ███   ███ ▀███████████
+#  ███    ███   ███    █▄  ▀███████████          ███ ███  ███    ███ ███   ███          ███
+#  ███    ███   ███    ███   ███    ███    ▄█    ███ ███  ███    ███ ███   ███    ▄█    ███
+#   ▀██████▀    ██████████   ███    ███  ▄████████▀  █▀    ▀██████▀   ▀█   █▀   ▄████████▀
+#
+[versions]
+# Build tools
+agp = "8.13.2"
+composeBom = "2025.07.00"
+kotlin = "2.3.21"
+ksp = "2.3.6"
+
+androidDesugarJdkLibs = "2.1.5"
+androidTools = "31.12.0"
+
+# Compose
+compose-hot-reload = "1.1.0"
+compose-multiplatform = "1.10.2"
+# Maintain compose multiplatform version aligned with navigation, cache error could happen
+compose-lifecycle = "2.9.1"
+navigation-compose = "2.9.0-beta04"
+navigation3 = "1.1.0"
+jetbrains-core-bundle = "1.0.1"
+material-icons = "1.7.3"
+
+# AndroidX
+androidx-activity = "1.10.1"
+androidx-lifecycle = "2.10.0-beta01"
+
+# Kotlinx
+kotlinx-coroutines = "1.10.2"
+kotlinx-serialization = "1.10.0"
+kotlinx-datetime = "0.7.1"
+
+# Third party
+koin = "4.1.1"
+koin-annotations = "2.1.0"
+ktor = "3.4.1"
+room = "2.7.2"
+sqlite = "2.5.2"
+adaptive = "1.2.0-alpha04"
+compose-jetbrains = "1.8.2"
+jetbrains-savedstate = "1.3.1"
+reorderable = "2.4.3"
+buildkonfig = "0.21.0"
+kermit = "2.0.6"
+archunit = "1.3.0"
+turbine = "1.2.0"
+multiplatform-settings = "1.3.0"
+androidx-security-crypto = "1.1.0-beta01"
+arrow = "2.2.2"
+
+projectApplicationId = "hu.blu3berry.avalon"
+projectVersionName = "0.1.0"
+projectMinSdkVersion = "26"
+projectTargetSdkVersion = "36"
+projectCompileSdkVersion = "36"
+projectVersionCode = "1"
+# Java/JVM bytecode level. Drives sourceCompatibility, targetCompatibility and every
+# jvmTarget across the convention plugins and the build-logic build itself.
+projectJavaVersion = "17"
+
+# Desktop Version
+desktopPackageName = "Avalon"
+desktopPackageVersion = "0.1.0"
+
+# KSP
+kraft = "0.12.0"
+
+kmpgen = "1.3.0"
+
+#  ▄█        ▄█  ▀█████████▄     ▄████████    ▄████████    ▄████████  ▄█     ▄████████    ▄████████
+#  ███       ███    ███    ███   ███    ███   ███    ███   ███    ███ ███    ███    ███   ███    ███
+#  ███       ███▌   ███    ███   ███    ███   ███    ███   ███    ███ ███▌   ███    █▀    ███    █▀
+#  ███       ███▌  ▄███▄▄▄██▀   ▄███▄▄▄▄██▀   ███    ███  ▄███▄▄▄▄██▀ ███▌  ▄███▄▄▄       ███
+#  ███       ███▌ ▀▀███▀▀▀██▄  ▀▀███▀▀▀▀▀   ▀███████████ ▀▀███▀▀▀▀▀   ███▌ ▀▀███▀▀▀     ▀███████████
+#  ███       ███    ███    ██▄ ▀███████████   ███    ███ ▀███████████ ███    ███    █▄           ███
+#  ███▌    ▄ ███    ███    ███   ███    ███   ███    ███   ███    ███ ███    ███    ███    ▄█    ███
+#  █████▄▄██ █▀   ▄█████████▀    ███    ███   ███    █▀    ███    ███ █▀     ██████████  ▄████████▀
+#  ▀
+[libraries]
+# Referenced from build-logic as findLibrary("androidx.compose.bom") — dot-form, invisible to dash-form greps
+androidx-compose-bom = { module = "androidx.compose:compose-bom", version.ref = "composeBom" }
+# Kotlin
+kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
+kotlin-test-junit5 = { module = "org.jetbrains.kotlin:kotlin-test-junit5", version.ref = "kotlin" }
+kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlin" }
+
+# AndroidX Core
+androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activity" }
+jetbrains-compose-viewmodel = { module = "org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "compose-lifecycle" }
+koin-core-viewmodel = { group = "io.insert-koin", name = "koin-core-viewmodel", version.ref = "koin" }
+
+# Kotlinx
+kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
+kotlinx-coroutines-swing = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-swing", version.ref = "kotlinx-coroutines" }
+kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinx-coroutines" }
+kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
+kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinx-datetime" }
+
+# Compose
+jetbrains-compose-navigation = { module = "org.jetbrains.androidx.navigation:navigation-compose", version.ref = "navigation-compose" }
+
+# Koin
+koin-core = { module = "io.insert-koin:koin-core", version.ref = "koin" }
+koin-android = { module = "io.insert-koin:koin-android", version.ref = "koin" }
+koin-compose = { module = "io.insert-koin:koin-compose", version.ref = "koin" }
+koin-compose-viewmodel = { module = "io.insert-koin:koin-compose-viewmodel", version.ref = "koin" }
+koin-androidx-compose = { group = "io.insert-koin", name = "koin-androidx-compose", version.ref = "koin" }
+koin-androidx-navigation = { group = "io.insert-koin", name = "koin-androidx-navigation", version.ref = "koin" }
+koin-test = { module = "io.insert-koin:koin-test", version.ref = "koin" }
+
+koin-annotations = { module = "io.insert-koin:koin-annotations", version.ref = "koin-annotations" }
+koin-ksp-compiler = { module = "io.insert-koin:koin-ksp-compiler", version.ref = "koin-annotations" }
+# Ktor
+ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
+ktor-client-okhttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "ktor" }
+ktor-client-darwin = { module = "io.ktor:ktor-client-darwin", version.ref = "ktor" }
+ktor-client-content-negotiation = { module = "io.ktor:ktor-client-content-negotiation", version.ref = "ktor" }
+ktor-client-logging = { module = "io.ktor:ktor-client-logging", version.ref = "ktor" }
+ktor-client-auth = { module = "io.ktor:ktor-client-auth", version.ref = "ktor" }
+ktor-client-mock = { module = "io.ktor:ktor-client-mock", version.ref = "ktor" }
+ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor" }
+
+# Multiplatform Settings (encrypted token storage)
+multiplatform-settings = { module = "com.russhwolf:multiplatform-settings", version.ref = "multiplatform-settings" }
+androidx-security-crypto = { module = "androidx.security:security-crypto", version.ref = "androidx-security-crypto" }
+
+# Material3 Adaptive
+material3-adaptive = { module = "org.jetbrains.compose.material3.adaptive:adaptive", version.ref = "adaptive" }
+
+# Room
+androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
+androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }
+sqlite-bundled = { module = "androidx.sqlite:sqlite-bundled", version.ref = "sqlite" }
+
+reorderable = { module = "sh.calvin.reorderable:reorderable", version.ref = "reorderable" }
+
+# Logging
+touchlab-kermit = { module = "co.touchlab:kermit", version.ref = "kermit" }
+
+android-desugarJdkLibs = { module = "com.android.tools:desugar_jdk_libs", version.ref = "androidDesugarJdkLibs" }
+android-gradlePlugin = { group = "com.android.tools.build", name = "gradle", version.ref = "agp" }
+android-tools-common = { group = "com.android.tools", name = "common", version.ref = "androidTools" }
+compose-gradlePlugin = { group = "org.jetbrains.kotlin", name = "compose-compiler-gradle-plugin", version.ref = "kotlin" }
+kotlin-gradlePlugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
+androidx-room-gradle-plugin = { module = "androidx.room:room-gradle-plugin", version.ref = "room" }
+ksp-gradlePlugin = { group = "com.google.devtools.ksp", name = "com.google.devtools.ksp.gradle.plugin", version.ref = "ksp" }
+buildkonfig-gradlePlugin = { group = "com.codingfeline.buildkonfig", name = "buildkonfig-gradle-plugin", version.ref = "buildkonfig" }
+buildkonfig-compiler = { group = "com.codingfeline.buildkonfig", name = "buildkonfig-compiler", version.ref = "buildkonfig" }
+
+androidx-compose-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
+androidx-compose-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
+
+koin-bom = { group = "io.insert-koin", name = "koin-bom", version.ref = "koin" }
+jetbrains-compose-runtime = { module = "org.jetbrains.compose.runtime:runtime", version.ref = "compose-jetbrains" }
+jetbrains-compose-material3 = { module = "org.jetbrains.compose.material3:material3", version.ref = "compose-jetbrains" }
+jetbrains-compose-material-icons-core = { module = "org.jetbrains.compose.material:material-icons-core", version.ref = "material-icons" }
+jetbrains-compose-material-icons-extended = { module = "org.jetbrains.compose.material:material-icons-extended", version.ref = "material-icons" }
+jetbrains-compose-ui = { module = "org.jetbrains.compose.ui:ui", version.ref = "compose-jetbrains" }
+jetbrains-compose-foundation = { module = "org.jetbrains.compose.foundation:foundation", version.ref = "compose-jetbrains" }
+
+jetbrains-lifecycle-viewmodel = { module = "org.jetbrains.androidx.lifecycle:lifecycle-viewmodel", version.ref = "compose-lifecycle" }
+jetbrains-lifecycle-compose = { group = "org.jetbrains.androidx.lifecycle", name = "lifecycle-runtime-compose", version.ref = "compose-lifecycle" }
+jetbrains-lifecycle-viewmodel-savedstate = { module = "org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-savedstate", version.ref = "compose-lifecycle" }
+jetbrains-savedstate = { module = "org.jetbrains.androidx.savedstate:savedstate", version.ref = "jetbrains-savedstate" }
+jetbrains-bundle = { module = "org.jetbrains.androidx.core:core-bundle", version.ref = "jetbrains-core-bundle" }
+jetbrains-navigation3-ui = { module = "org.jetbrains.androidx.navigation3:navigation3-ui", version.ref = "navigation3" }
+jetbrains-lifecycle-viewmodel-nav3 = { module = "org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-navigation3", version.ref = "androidx-lifecycle" }
+
+# KSP
+blu3berry-kraft-annotations = { module = "com.blu3berry.kraft:kraft-annotations", version.ref = "kraft"}
+blu3berry-kraft-ksp = { module = "com.blu3berry.kraft:kraft-ksp", version.ref = "kraft"}
+
+# kmpgen runtime (consumed by :core:data and any feature that consumes a kmpgen-generated *Api)
+kmpgen-companion = { module = "com.kroegerama.openapi-kmp-gen:companion", version.ref = "kmpgen" }
+arrow-core = { module = "io.arrow-kt:arrow-core", version.ref = "arrow" }
+
+# ArchUnit
+archunit = { module = "com.tngtech.archunit:archunit", version.ref = "archunit" }
+archunit-junit5 = { module = "com.tngtech.archunit:archunit-junit5", version.ref = "archunit" }
+
+# Turbine (Flow testing)
+turbine = { module = "app.cash.turbine:turbine", version.ref = "turbine" }
+
+#   ▄███████▄  ▄█       ███    █▄     ▄██████▄   ▄█  ███▄▄▄▄      ▄████████
+#  ███    ███ ███       ███    ███   ███    ███ ███  ███▀▀▀██▄   ███    ███
+#  ███    ███ ███       ███    ███   ███    █▀  ███▌ ███   ███   ███    █▀
+#  ███    ███ ███       ███    ███  ▄███        ███▌ ███   ███   ███
+#▀█████████▀  ███       ███    ███ ▀▀███ ████▄  ███▌ ███   ███ ▀███████████
+#  ███        ███       ███    ███   ███    ███ ███  ███   ███          ███
+#  ███        ███▌    ▄ ███    ███   ███    ███ ███  ███   ███    ▄█    ███
+# ▄████▀      █████▄▄██ ████████▀    ████████▀  █▀    ▀█   █▀   ▄████████▀
+#             ▀
+[plugins]
+# Avalon convention plugin self-references (resolved via included build :build-logic:convention)
+convention-kmp-library = { id = "hu.blu3berry.avalon.kmp.library" }
+convention-cmp-library = { id = "hu.blu3berry.avalon.cmp.library" }
+convention-cmp-feature = { id = "hu.blu3berry.avalon.cmp.feature" }
+convention-cmp-application = { id = "hu.blu3berry.avalon.cmp.application" }
+convention-android-application = { id = "hu.blu3berry.avalon.android.application" }
+convention-android-application-compose = { id = "hu.blu3berry.avalon.android.application.compose" }
+convention-room = { id = "hu.blu3berry.avalon.room" }
+convention-buildkonfig = { id = "hu.blu3berry.avalon.buildkonfig" }
+convention-kmpgen = { id = "hu.blu3berry.avalon.kmpgen" }
+blu3berry-kraft = { id = "com.blu3berry.kraft", version.ref = "kraft" }
+
+# Android
+android-application = { id = "com.android.application", version.ref = "agp" }
+android-library = { id = "com.android.library", version.ref = "agp" }
+android-kotlin-multiplatform-library = { id = "com.android.kotlin.multiplatform.library", version.ref = "agp" }
+
+# Kotlin
+kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+
+# Compose
+compose-hot-reload = { id = "org.jetbrains.compose.hot-reload", version.ref = "compose-hot-reload" }
+compose-multiplatform = { id = "org.jetbrains.compose", version.ref = "compose-multiplatform" }
+compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+
+# Build tools
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+room = { id = "androidx.room", version.ref = "room" }
+kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+buildkonfig = { id = "com.codingfeline.buildkonfig", version.ref = "buildkonfig" }
+
+kmpgen = { id = "com.kroegerama.openapi-kmp-gen", version.ref = "kmpgen" }
+
+# ▀█████████▄  ███    █▄  ███▄▄▄▄   ████████▄   ▄█          ▄████████    ▄████████
+#   ███    ███ ███    ███ ███▀▀▀██▄ ███   ▀███ ███         ███    ███   ███    ███
+#   ███    ███ ███    ███ ███   ███ ███    ███ ███         ███    █▀    ███    █▀
+#  ▄███▄▄▄██▀  ███    ███ ███   ███ ███    ███ ███        ▄███▄▄▄       ███
+# ▀▀███▀▀▀██▄  ███    ███ ███   ███ ███    ███ ███       ▀▀███▀▀▀     ▀███████████
+#   ███    ██▄ ███    ███ ███   ███ ███    ███ ███         ███    █▄           ███
+#   ███    ███ ███    ███ ███   ███ ███   ▄███ ███▌    ▄   ███    ███    ▄█    ███
+# ▄█████████▀  ████████▀   ▀█   █▀  ████████▀  █████▄▄██   ██████████  ▄████████▀
+#                                              ▀
+[bundles]
+# Non-UI modules (:core:*, future :data:*) — no Compose on the classpath.
+koin-common = [
+    "koin-core",
+]
+
+# UI modules (:composeApp, future :feature:*) — adds the Compose integrations.
+koin-compose-common = [
+    "koin-core",
+    "koin-compose",
+    "koin-compose-viewmodel"
+]
+
+ktor-common = [
+    "ktor-client-core",
+    "ktor-client-content-negotiation",
+    "ktor-serialization-kotlinx-json",
+    "ktor-client-auth",
+    "ktor-client-logging",
+]
+
+nav3-common = [
+    "jetbrains-navigation3-ui",
+    "jetbrains-lifecycle-viewmodel-nav3",
+]

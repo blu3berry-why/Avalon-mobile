@@ -1,0 +1,950 @@
+{
+  "openapi" : "3.0.1",
+  "info" : {
+    "title" : "Avalon Game API",
+    "description" : "Game, lobby and user endpoints served by avalon-spring, consumed by the Avalon KMP client (contract-first via kmpgen).\n\nAuth is handled upstream by the ForwardAuth service: the client sends `Authorization: Bearer <jwt>` on every call, the gateway validates it and injects the `Avalon-Header-Logged-In-User-Username` header. That header is therefore omitted from this contract (the client never sets it), and avalon-spring itself declares no security scheme.",
+    "version" : "0.1.0"
+  },
+  "servers" : [ {
+    "url" : "http://localhost:65270",
+    "description" : "Generated server url"
+  } ],
+  "paths" : {
+    "/user" : {
+      "put" : {
+        "tags" : [ "user-controller" ],
+        "operationId" : "updateUserByUsername",
+        "parameters" : [ ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/LoginInfo"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "409" : {
+            "description" : "Conflict",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Message"
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "Not Found",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Message"
+                }
+              }
+            }
+          },
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/LoginInfo"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete" : {
+        "tags" : [ "user-controller" ],
+        "operationId" : "deleteUserByUsername",
+        "parameters" : [ ],
+        "responses" : {
+          "409" : {
+            "description" : "Conflict",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Message"
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "Not Found",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Message"
+                }
+              }
+            }
+          },
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/LoginInfo"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/lobby/{lobbyCode}/settings" : {
+      "get" : {
+        "tags" : [ "lobby-controller" ],
+        "operationId" : "getLobbySettings",
+        "parameters" : [ {
+          "name" : "lobbyCode",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "409" : {
+            "description" : "Conflict",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Message"
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "Not Found",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Message"
+                }
+              }
+            }
+          },
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Settings"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put" : {
+        "tags" : [ "lobby-controller" ],
+        "operationId" : "updateSettings",
+        "parameters" : [ {
+          "name" : "lobbyCode",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/Settings"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "409" : {
+            "description" : "Conflict",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Message"
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "Not Found",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Message"
+                }
+              }
+            }
+          },
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Message"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/lobby/{lobbyCode}/start" : {
+      "post" : {
+        "tags" : [ "lobby-controller" ],
+        "operationId" : "startLobby",
+        "parameters" : [ {
+          "name" : "lobbyCode",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "409" : {
+            "description" : "Conflict",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Message"
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "Not Found",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Message"
+                }
+              }
+            }
+          },
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Message"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/lobby/{lobbyCode}/leave" : {
+      "post" : {
+        "tags" : [ "lobby-controller" ],
+        "operationId" : "leaveLobby",
+        "parameters" : [ {
+          "name" : "lobbyCode",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "409" : {
+            "description" : "Conflict",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Message"
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "Not Found",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Message"
+                }
+              }
+            }
+          },
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Message"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/lobby/{lobbyCode}/join" : {
+      "post" : {
+        "tags" : [ "lobby-controller" ],
+        "operationId" : "joinLobby",
+        "parameters" : [ {
+          "name" : "lobbyCode",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "409" : {
+            "description" : "Conflict",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Message"
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "Not Found",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Message"
+                }
+              }
+            }
+          },
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Message"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/lobby/create" : {
+      "post" : {
+        "tags" : [ "lobby-controller" ],
+        "operationId" : "createLobby",
+        "responses" : {
+          "409" : {
+            "description" : "Conflict",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Message"
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "Not Found",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Message"
+                }
+              }
+            }
+          },
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/LobbyCode"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/game/{lobbyCode}/vote" : {
+      "post" : {
+        "tags" : [ "game-controller" ],
+        "operationId" : "vote",
+        "parameters" : [ {
+          "name" : "lobbyCode",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/SingleVote"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "409" : {
+            "description" : "Conflict",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Message"
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "Not Found",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Message"
+                }
+              }
+            }
+          },
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Message"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/game/{lobbyCode}/select" : {
+      "post" : {
+        "tags" : [ "game-controller" ],
+        "operationId" : "selectForAdventure",
+        "parameters" : [ {
+          "name" : "lobbyCode",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "type" : "array",
+                "items" : {
+                  "type" : "string"
+                }
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "409" : {
+            "description" : "Conflict",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Message"
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "Not Found",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Message"
+                }
+              }
+            }
+          },
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Message"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/game/{lobbyCode}/assassin" : {
+      "post" : {
+        "tags" : [ "game-controller" ],
+        "operationId" : "assassin",
+        "parameters" : [ {
+          "name" : "lobbyCode",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/AssassinGuess"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "409" : {
+            "description" : "Conflict",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Message"
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "Not Found",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Message"
+                }
+              }
+            }
+          },
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Message"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/game/{lobbyCode}/adventureVote" : {
+      "post" : {
+        "tags" : [ "game-controller" ],
+        "operationId" : "adventure",
+        "parameters" : [ {
+          "name" : "lobbyCode",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/SingleVote"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "409" : {
+            "description" : "Conflict",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Message"
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "Not Found",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Message"
+                }
+              }
+            }
+          },
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Message"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user/{username}" : {
+      "get" : {
+        "tags" : [ "user-controller" ],
+        "operationId" : "getUserByUsername",
+        "parameters" : [ {
+          "name" : "username",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "409" : {
+            "description" : "Conflict",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Message"
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "Not Found",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Message"
+                }
+              }
+            }
+          },
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/LoginInfo"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/lobby/{lobbyCode}/playernames" : {
+      "get" : {
+        "tags" : [ "lobby-controller" ],
+        "operationId" : "getPlayerNames",
+        "parameters" : [ {
+          "name" : "lobbyCode",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "409" : {
+            "description" : "Conflict",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Message"
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "Not Found",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Message"
+                }
+              }
+            }
+          },
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "type" : "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/game/{lobbyCode}" : {
+      "get" : {
+        "tags" : [ "game-controller" ],
+        "operationId" : "getGameInfo",
+        "parameters" : [ {
+          "name" : "lobbyCode",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "409" : {
+            "description" : "Conflict",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Message"
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "Not Found",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Message"
+                }
+              }
+            }
+          },
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Info"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/game/{lobbyCode}/character" : {
+      "get" : {
+        "tags" : [ "game-controller" ],
+        "operationId" : "getCharacter",
+        "parameters" : [ {
+          "name" : "lobbyCode",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "409" : {
+            "description" : "Conflict",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Message"
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "Not Found",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Message"
+                }
+              }
+            }
+          },
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/CharacterInfo"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "Message" : {
+        "required" : [ "message" ],
+        "type" : "object",
+        "properties" : {
+          "message" : {
+            "type" : "string"
+          }
+        }
+      },
+      "LoginInfo" : {
+        "type" : "object",
+        "properties" : {
+          "username" : {
+            "type" : "string"
+          },
+          "password" : {
+            "type" : "string"
+          },
+          "email" : {
+            "type" : "string"
+          },
+          "friends" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/LoginInfo"
+            }
+          }
+        }
+      },
+      "Settings" : {
+        "required" : [ "arnold", "assassin", "mordred", "morgana", "oberon", "percival" ],
+        "type" : "object",
+        "properties" : {
+          "assassin" : {
+            "type" : "boolean"
+          },
+          "mordred" : {
+            "type" : "boolean"
+          },
+          "morgana" : {
+            "type" : "boolean"
+          },
+          "oberon" : {
+            "type" : "boolean"
+          },
+          "percival" : {
+            "type" : "boolean"
+          },
+          "arnold" : {
+            "type" : "boolean"
+          }
+        }
+      },
+      "LobbyCode" : {
+        "required" : [ "code" ],
+        "type" : "object",
+        "properties" : {
+          "code" : {
+            "type" : "string"
+          }
+        }
+      },
+      "SingleVote" : {
+        "required" : [ "username", "uservote" ],
+        "type" : "object",
+        "properties" : {
+          "username" : {
+            "type" : "string"
+          },
+          "uservote" : {
+            "type" : "boolean"
+          }
+        }
+      },
+      "AssassinGuess" : {
+        "required" : [ "guess" ],
+        "type" : "object",
+        "properties" : {
+          "guess" : {
+            "type" : "string"
+          }
+        }
+      },
+      "Info" : {
+        "required" : [ "assassinHasGuessed", "currentAdventure", "currentRound", "failCounter", "isAdventure", "playerSelectNum", "playersName", "scores", "selectedForAdventure", "started", "winner" ],
+        "type" : "object",
+        "properties" : {
+          "started" : {
+            "type" : "boolean"
+          },
+          "winner" : {
+            "type" : "string",
+            "enum" : [ "NOT_DECIDED", "EVIL", "GOOD" ]
+          },
+          "scores" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string",
+              "enum" : [ "EVIL", "GOOD", "UNDECIDED" ]
+            }
+          },
+          "currentRound" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "isAdventure" : {
+            "type" : "boolean"
+          },
+          "currentAdventure" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "king" : {
+            "type" : "string"
+          },
+          "failCounter" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "selectedForAdventure" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "playersName" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "assassinHasGuessed" : {
+            "type" : "boolean"
+          },
+          "playerSelectNum" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        }
+      },
+      "CharacterInfo" : {
+        "required" : [ "name", "sees" ],
+        "type" : "object",
+        "properties" : {
+          "name" : {
+            "type" : "string",
+            "enum" : [ "PERCIVAL", "MERLIN", "SERVANT_OF_ARTHUR", "ARNOLD", "ASSASSIN", "MORGANA", "MORDRED", "OBERON", "MINION_OF_MORDRED" ]
+          },
+          "sees" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          }
+        }
+      }
+    }
+  }
+}

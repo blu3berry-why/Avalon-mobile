@@ -1,0 +1,17 @@
+package hu.blu3berry.avalon.convention
+
+import org.gradle.api.Project
+import org.gradle.kotlin.dsl.configure
+import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
+import kotlin.text.set
+
+internal fun Project.configureAndroidTarget(){
+    val target = jvmTargetVersion
+    extensions.configure<KotlinMultiplatformExtension> {
+        androidTarget {
+            compilerOptions {
+                jvmTarget.set(target)
+            }
+        }
+    }
+}

@@ -1,5 +1,13 @@
 plugins {
     alias(libs.plugins.convention.cmp.library)
+    alias(libs.plugins.koin.compiler)
+}
+
+koinCompiler {
+    // Resolve the whole graph — annotated definitions and the DSL modules they pull from —
+    // during compilation, so a view model asking for something nothing provides is a build
+    // error rather than a crash on first navigation.
+    compileSafety = true
 }
 
 // :composeApp is a KMP library — shared UI + wiring consumed by :androidApp,

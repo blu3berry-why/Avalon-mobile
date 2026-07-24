@@ -59,6 +59,7 @@ class GoodWinFragment : Fragment() {
                         binding.btnAssassinGuessG.isEnabled = true
                     }
                 }
+                else -> {}
             }
         }
 
@@ -106,12 +107,14 @@ class GoodWinFragment : Fragment() {
                                                     binding.btnBackToMainG.isEnabled = true
                                                 }
                                             }
+                                            else -> {}
                                         }
                                     }
                                 }
                             }
                         }
                     }
+                    else -> {}
                 }
             }
         }

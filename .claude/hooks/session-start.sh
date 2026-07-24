@@ -1,65 +1,85 @@
-#!/bin/bash
-# SessionStart hook for Claude Code on the web.
-# Installs the toolchain this project needs (JDK 11 + Android SDK 31) and
-# pre-warms the Gradle cache so Android builds/tests/lint work in cloud sessions.
+#!/usr/bin/env bash
+# SessionStart hook — warm the Gradle cache (distribution + plugin classpath) so
+# builds in Claude Code on the web don't stall on first-time downloads.
+# Ported from Re-Claw; this repo has a single Gradle root.
 #
-# Project constraints: Gradle 7.0.2 + AGP 7.0.3 require Java 11 (they do not
-# run on the container's default Java 21). compileSdk is 31.
-set -euo pipefail
+# Also bootstraps the Android SDK (cmdline-tools + licenses + local.properties)
+# into /opt/android-sdk — the web container ships no SDK; AGP auto-installs the
+# platform/build-tools it needs during the first build once licenses are accepted.
+#
+# Design: remote-only, synchronous, idempotent, and NON-FATAL. A blocked host or
+# missing tool must warn, not abort session start.
+set -uo pipefail
 
-# Only needed in the remote (cloud) environment; local machines have their own setup.
+# Claude Code on the web only — local checkouts already have warm caches.
 if [ "${CLAUDE_CODE_REMOTE:-}" != "true" ]; then
   exit 0
 fi
 
-JDK11_HOME=/usr/lib/jvm/java-11-openjdk-amd64
-ANDROID_SDK=/opt/android-sdk
-CMDLINE_TOOLS_URL=https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip
+ROOT="${CLAUDE_PROJECT_DIR:-$(cd "$(dirname "$0")/../.." && pwd)}"
+log() { echo "[session-start] $*"; }
 
-# --- JDK 11 (required by Gradle 7.0.2 / AGP 7.0.3) ---
-if [ ! -x "$JDK11_HOME/bin/java" ]; then
-  echo "Installing OpenJDK 11..."
-  sudo apt-get update -qq || true
-  sudo apt-get install -y -qq openjdk-11-jdk-headless
+# Seed the wrapper's distribution cache for <version> from a matching local Gradle
+# install, so a network download is never needed. No-op if already cached or if no
+# matching local install exists.
+seed_dist_from_local() {
+  local dir="$1" ver="$2"
+  [ -n "$ver" ] || return 0
+  if ls -d "$HOME"/.gradle/wrapper/dists/gradle-"$ver"-bin/*/gradle-"$ver"/bin/gradle >/dev/null 2>&1; then
+    return 0
+  fi
+  local src="" cand
+  for cand in "/opt/gradle-$ver" "/opt/gradle"; do
+    if [ -x "$cand/bin/gradle" ] && "$cand/bin/gradle" --version 2>/dev/null | grep -q "Gradle $ver"; then
+      src="$cand"; break
+    fi
+  done
+  [ -n "$src" ] || return 0
+  local hd
+  hd=$(ls -d "$HOME"/.gradle/wrapper/dists/gradle-"$ver"-bin/*/ 2>/dev/null | head -1)
+  if [ -z "$hd" ]; then
+    ( cd "$dir" && timeout 90 ./gradlew --version >/dev/null 2>&1 ) || true
+    hd=$(ls -d "$HOME"/.gradle/wrapper/dists/gradle-"$ver"-bin/*/ 2>/dev/null | head -1)
+  fi
+  [ -n "$hd" ] || return 0
+  rm -f "$hd"/*.lck "$hd"/*.part
+  [ -d "$hd/gradle-$ver" ] || cp -a "$src" "$hd/gradle-$ver"
+  touch "$hd/gradle-$ver-bin.zip.ok"
+  log "seeded Gradle $ver distribution from $src"
+}
+
+# Android SDK: install cmdline-tools and accept licenses if missing.
+SDK_ROOT=/opt/android-sdk
+if [ ! -d "$SDK_ROOT/cmdline-tools/latest" ]; then
+  log "installing Android SDK cmdline-tools ..."
+  TOOLS_ZIP=$(mktemp -u /tmp/cmdtools-XXXX.zip)
+  if curl -fsSLo "$TOOLS_ZIP" https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip \
+     && mkdir -p "$SDK_ROOT/cmdline-tools" \
+     && unzip -q "$TOOLS_ZIP" -d "$SDK_ROOT/cmdline-tools" \
+     && mv "$SDK_ROOT/cmdline-tools/cmdline-tools" "$SDK_ROOT/cmdline-tools/latest"; then
+    log "cmdline-tools installed"
+  else
+    log "WARN: could not install Android SDK cmdline-tools (dl.google.com blocked?) — Android builds will fail until it is available."
+  fi
+  rm -f "$TOOLS_ZIP"
+fi
+if [ -x "$SDK_ROOT/cmdline-tools/latest/bin/sdkmanager" ] && [ ! -f "$SDK_ROOT/licenses/android-sdk-license" ]; then
+  yes | "$SDK_ROOT/cmdline-tools/latest/bin/sdkmanager" --sdk_root="$SDK_ROOT" --licenses >/dev/null 2>&1 || true
+fi
+[ -f "$ROOT/local.properties" ] || echo "sdk.dir=$SDK_ROOT" > "$ROOT/local.properties"
+
+if [ ! -x "$ROOT/gradlew" ]; then
+  log "no gradlew, nothing to warm"
+  exit 0
 fi
 
-# --- Android SDK: cmdline-tools, platform 31, build-tools 30.0.3 ---
-if [ ! -x "$ANDROID_SDK/cmdline-tools/latest/bin/sdkmanager" ]; then
-  echo "Installing Android command-line tools..."
-  tmpzip=$(mktemp /tmp/cmdline-tools-XXXX.zip)
-  curl -fsSLo "$tmpzip" "$CMDLINE_TOOLS_URL"
-  sudo mkdir -p "$ANDROID_SDK/cmdline-tools"
-  sudo unzip -q -o "$tmpzip" -d "$ANDROID_SDK/cmdline-tools"
-  sudo mv -T "$ANDROID_SDK/cmdline-tools/cmdline-tools" "$ANDROID_SDK/cmdline-tools/latest"
-  rm -f "$tmpzip"
+VER=$(sed -n 's#.*/gradle-\([0-9][0-9.]*\)-bin\.zip#\1#p' "$ROOT/gradle/wrapper/gradle-wrapper.properties" 2>/dev/null | head -1)
+seed_dist_from_local "$ROOT" "$VER"
+log "warming Gradle (distribution + plugin classpath) ..."
+if ( cd "$ROOT" && ./gradlew --console=plain --quiet help ); then
+  log "warm-up OK"
+else
+  log "WARN: warm-up did not complete — a required host (services.gradle.org, dl.google.com, repo1.maven.org) may be blocked. The first real build will fetch what is missing."
 fi
-
-if [ ! -d "$ANDROID_SDK/platforms/android-31" ] || [ ! -d "$ANDROID_SDK/build-tools/30.0.3" ]; then
-  echo "Installing Android SDK packages (platform 31, build-tools 30.0.3)..."
-  yes | sudo -E "$ANDROID_SDK/cmdline-tools/latest/bin/sdkmanager" --licenses > /dev/null || true
-  sudo -E "$ANDROID_SDK/cmdline-tools/latest/bin/sdkmanager" --install \
-    "platform-tools" "platforms;android-31" "build-tools;30.0.3" > /dev/null
-fi
-
-# --- Environment for the session ---
-if [ -n "${CLAUDE_ENV_FILE:-}" ]; then
-  {
-    echo "export JAVA_HOME=$JDK11_HOME"
-    echo "export ANDROID_HOME=$ANDROID_SDK"
-    echo "export ANDROID_SDK_ROOT=$ANDROID_SDK"
-    echo 'export PATH="$ANDROID_HOME/platform-tools:$ANDROID_HOME/cmdline-tools/latest/bin:$PATH"'
-  } >> "$CLAUDE_ENV_FILE"
-fi
-
-# AGP also finds the SDK via local.properties (gitignored).
-echo "sdk.dir=$ANDROID_SDK" > "$CLAUDE_PROJECT_DIR/local.properties"
-
-# --- Pre-warm Gradle (wrapper distribution + dependency cache) ---
-# Best-effort: a broken build on some branch must not block session startup.
-cd "$CLAUDE_PROJECT_DIR"
-chmod +x gradlew
-export JAVA_HOME=$JDK11_HOME ANDROID_HOME=$ANDROID_SDK ANDROID_SDK_ROOT=$ANDROID_SDK
-./gradlew --no-daemon :app:compileDebugKotlin -q < /dev/null \
-  || echo "Warning: Gradle pre-warm failed; toolchain is installed but dependencies may download on first build."
-
-echo "Android environment ready: JDK 11, Android SDK 31 at $ANDROID_SDK"
+log "done"
+exit 0

@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.convention.kmpgen)
     alias(libs.plugins.ksp)
     alias(libs.plugins.blu3berry.kraft)
+    alias(libs.plugins.koin.compiler)
     alias(libs.plugins.convention.buildkonfig)
     // kotlin-serialization is applied by the kmp.library convention plugin.
 }

@@ -69,6 +69,15 @@ kmpgen behaviors that shape the surrounding code:
 
 DTO ↔ domain mapping uses the Kraft annotation processor (`@MapConfig`/`@MapEnum`/`@MapReverse`/`@MapUsing`), with side aliases configured in `core/data/build.gradle.kts` so call sites read `dto.toDomain()` / `domain.toDto()`. **Test only hand-written `@MapUsing` bodies** — never the declarative mappings; those are the library's responsibility.
 
+### Dependency injection (Koin compiler plugin)
+
+The graph is validated at compile time by the Koin compiler plugin (`io.insert-koin.compiler.plugin`, applied in `:core:data` and `:composeApp`; needs Kotlin 2.3.20+). `compileSafety` resolves every annotated definition **and** every `koinInject<T>()` / `koinViewModel()` call site — a missing binding is a `KOIN-D001`/`KOIN-D002` build error, not a crash on first navigation.
+
+- `AvalonApp` (`:composeApp`) is the `@KoinApplication`: `@ComponentScan` picks up `@KoinViewModel`s, `includes = [CoreDataModule::class]` pulls the data graph across the module boundary.
+- Startup is the typed API — `startKoin<AvalonApp>` from `org.koin.plugin.module.dsl`, **not** `org.koin.core.context.startKoin`.
+- `platformCoreDataModule` is the only remaining DSL module: `expect`/`actual` bindings annotations cannot express. Its two types (`SecureSettingsFactory`, `HttpClientEngine`) are consumed with `@Provided`, which is the supported way to say "declared elsewhere" — do not reach for it to silence an ordinary missing binding.
+- This supersedes decision D7 for `:core:data`'s own definitions: they are `@Single` functions on `CoreDataModule` now, because the plugin can only check definitions it can introspect (a `single { ... }` lambda body is opaque to it).
+
 ### Session / auth flow
 
 `TokenStorage` (expect/actual: EncryptedSharedPreferences on Android, multiplatform-settings elsewhere) feeds the `HttpClientFactory` interceptor. On a 401, `EitherToResult` maps to `DataError.Network.UNAUTHORIZED` and `SessionManagerImpl` emits `AuthEvent.SessionExpired` (suspending `emit`, not `tryEmit`). Polling flows (`GameRepositoryImpl.observeGameInfo`) terminate on UNAUTHORIZED instead of re-polling.

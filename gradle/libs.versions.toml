@@ -37,8 +37,10 @@ kotlinx-serialization = "1.10.0"
 kotlinx-datetime = "0.7.1"
 
 # Third party
-koin = "4.1.1"
-koin-annotations = "2.1.0"
+koin = "4.2.2"
+# The Koin compiler plugin replaces koin-ksp-compiler: it validates the graph (annotations
+# *and* DSL) during compilation. Needs Kotlin 2.3.20+.
+koin-compiler-plugin = "1.0.2"
 ktor = "3.4.1"
 room = "2.7.2"
 sqlite = "2.5.2"
@@ -114,8 +116,7 @@ koin-androidx-compose = { group = "io.insert-koin", name = "koin-androidx-compos
 koin-androidx-navigation = { group = "io.insert-koin", name = "koin-androidx-navigation", version.ref = "koin" }
 koin-test = { module = "io.insert-koin:koin-test", version.ref = "koin" }
 
-koin-annotations = { module = "io.insert-koin:koin-annotations", version.ref = "koin-annotations" }
-koin-ksp-compiler = { module = "io.insert-koin:koin-ksp-compiler", version.ref = "koin-annotations" }
+koin-annotations = { module = "io.insert-koin:koin-annotations", version.ref = "koin" }
 # Ktor
 ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
 ktor-client-okhttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "ktor" }
@@ -226,6 +227,7 @@ compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "
 
 # Build tools
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+koin-compiler = { id = "io.insert-koin.compiler.plugin", version.ref = "koin-compiler-plugin" }
 room = { id = "androidx.room", version.ref = "room" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 buildkonfig = { id = "com.codingfeline.buildkonfig", version.ref = "buildkonfig" }
@@ -245,11 +247,13 @@ kmpgen = { id = "com.kroegerama.openapi-kmp-gen", version.ref = "kmpgen" }
 # Non-UI modules (:core:*, future :data:*) — no Compose on the classpath.
 koin-common = [
     "koin-core",
+    "koin-annotations",
 ]
 
 # UI modules (:composeApp, future :feature:*) — adds the Compose integrations.
 koin-compose-common = [
     "koin-core",
+    "koin-annotations",
     "koin-compose",
     "koin-compose-viewmodel"
 ]

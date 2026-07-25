@@ -75,4 +75,6 @@ DTO ↔ domain mapping uses the Kraft annotation processor (`@MapConfig`/`@MapEn
 
 ### Testing conventions
 
-Common tests run via the desktop target (`desktopTest`). HTTP is faked with Ktor `MockEngine`, flows asserted with Turbine. Note the process-wide hazard: tests that configure the singleton `GameApi` mutate global state — a known issue tracked as a Phase 3 prerequisite.
+Common tests run via the desktop target (`desktopTest`). HTTP is faked with Ktor `MockEngine`, flows asserted with Turbine.
+
+The generated `Api` objects are process-wide singletons whose `client` the generated services read at call time, so pointing a repository at a `MockEngine` mutates global state. **Any test that reaches a generated API goes through `runApiTest` (`core/data/src/commonTest/.../ApiTestFixture.kt`)** — it installs a fresh client on both APIs for the test body, holds a lock so overlapping tests serialize, and closes the client afterwards so nothing leaks into the next test. `ApiTestFixtureTest` guards those properties.

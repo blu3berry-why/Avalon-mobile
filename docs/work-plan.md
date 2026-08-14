@@ -40,7 +40,18 @@ placeholder and Koin wires no modules.
 
 ## Working agreement for scheduled sessions
 
-One phase per session. Develop on `claude/work-planning-scheduling-tzp70g`, run the
-verify commands, commit with a descriptive message, push, tick the phase's box in this
-file in the same commit. When the last box is ticked, delete the daily trigger and
-report completion.
+Sessions fire overnight and are greedy: work through phases **in order** and complete
+as many as possible in one session, but never at the cost of quality. Rules:
+
+- Start by fetching `claude/work-planning-scheduling-tzp70g` and building on its head —
+  never discard commits that are already there.
+- A phase counts as done only when its verify commands pass. Tick its box in this file
+  in the same commit that completes it, then push before starting the next phase.
+- Never push a half-finished phase. If a phase can't be completed cleanly (failing
+  verification, missing reference, context running low), stop after the last pushed
+  green phase and leave a short note under "Session log" below instead.
+- When the last box is ticked, delete the overnight trigger and report completion.
+
+## Session log
+
+(Overnight sessions append blockers/carry-over notes here.)

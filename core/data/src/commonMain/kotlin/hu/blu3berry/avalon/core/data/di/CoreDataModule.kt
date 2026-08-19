@@ -20,41 +20,68 @@ import hu.blu3berry.avalon.core.domain.session.SessionManager
 import io.ktor.client.HttpClientConfig
 import io.ktor.client.engine.HttpClientEngine
 import io.ktor.http.Url
+import org.koin.core.annotation.Module as KoinModule
+import org.koin.core.annotation.Provided
+import org.koin.core.annotation.Single
 import org.koin.core.module.Module
-import org.koin.dsl.module
 import hu.blu3berry.avalon.core.data.generated.auth.Api as AuthApi
 import hu.blu3berry.avalon.core.data.generated.game.Api as GameApi
 
 /**
- * Per-platform data bindings (HttpClientEngine factory + Android Context for encrypted prefs).
- * `includes()` into [coreDataModule] so consumers load a single cross-feature module.
+ * Per-platform data bindings: the `HttpClientEngine` factory, and the `SecureSettingsFactory`
+ * that needs an Android `Context`. Both are `expect`/`actual`, which annotations cannot express,
+ * so this half stays plain DSL and its two types are consumed as [Provided] below. Consumers
+ * load it alongside the annotated graph — see `initKoin`.
  */
 expect val platformCoreDataModule: Module
 
-val coreDataModule: Module = module {
-    includes(platformCoreDataModule)
+/**
+ * The data graph. Annotated rather than DSL so the Koin compiler plugin can resolve it at build
+ * time together with the presentation graph that consumes it (decision D7 revisited: the plugin
+ * needs definitions it can introspect, and `@Provided` covers the expect/actual boundary that
+ * pushed the original DSL choice).
+ */
+@KoinModule
+class CoreDataModule {
 
-    single<TokenStorage> { SecureSettingsTokenStorage(get<SecureSettingsFactory>().create()) }
-    single<SessionManager> { SessionManagerImpl() }
+    @Single
+    fun tokenStorage(@Provided factory: SecureSettingsFactory): TokenStorage =
+        SecureSettingsTokenStorage(factory.create())
 
-    // The kmpgen `Api` objects are process-wide singletons that build their own client, so
-    // they are configured once here rather than injected. The game API and ForwardAuth are
-    // separate deployments with separate base URLs, hence two `Api` objects.
-    //
-    // `createdAtStart` because the generated `Api` objects are unusable until this has run and
-    // nothing else forces it: Koin builds it during `startKoin`, before any repository can be
-    // resolved. A repository added later inherits the guarantee without opting in.
-    single<ApiConfigurator>(createdAtStart = true) {
-        ApiConfigurator(
-            engine = get(),
-            tokenStorage = get(),
-        ).also { it.configure() }
-    }
+    @Single
+    fun sessionManager(): SessionManager = SessionManagerImpl()
 
-    single<AuthRepository> { AuthRepositoryImpl(tokenStorage = get(), sessionManager = get()) }
-    single<UserRepository> { UserRepositoryImpl(sessionManager = get()) }
-    single<LobbyRepository> { LobbyRepositoryImpl(sessionManager = get()) }
-    single<GameRepository> { GameRepositoryImpl(sessionManager = get()) }
+    /**
+     * The kmpgen `Api` objects are process-wide singletons that build their own client, so they
+     * are configured once here rather than injected. The game API and ForwardAuth are separate
+     * deployments with separate base URLs, hence two `Api` objects.
+     *
+     * `createdAtStart` because the generated `Api` objects are unusable until this has run and
+     * nothing else forces it: Koin builds it during `startKoin`, before any repository can be
+     * resolved. A repository added later inherits the guarantee without opting in.
+     */
+    @Single(createdAtStart = true)
+    fun apiConfigurator(
+        @Provided engine: HttpClientEngine,
+        tokenStorage: TokenStorage,
+    ): ApiConfigurator = ApiConfigurator(engine = engine, tokenStorage = tokenStorage)
+        .also { it.configure() }
+
+    @Single
+    fun authRepository(tokenStorage: TokenStorage, sessionManager: SessionManager): AuthRepository =
+        AuthRepositoryImpl(tokenStorage = tokenStorage, sessionManager = sessionManager)
+
+    @Single
+    fun userRepository(sessionManager: SessionManager): UserRepository =
+        UserRepositoryImpl(sessionManager = sessionManager)
+
+    @Single
+    fun lobbyRepository(sessionManager: SessionManager): LobbyRepository =
+        LobbyRepositoryImpl(sessionManager = sessionManager)
+
+    @Single
+    fun gameRepository(sessionManager: SessionManager): GameRepository =
+        GameRepositoryImpl(sessionManager = sessionManager)
 }
 
 /**

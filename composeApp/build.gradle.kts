@@ -1,16 +1,31 @@
 plugins {
     alias(libs.plugins.convention.cmp.library)
+    alias(libs.plugins.koin.compiler)
+}
+
+koinCompiler {
+    // Resolve the whole graph — annotated definitions and the DSL modules they pull from —
+    // during compilation, so a view model asking for something nothing provides is a build
+    // error rather than a crash on first navigation.
+    compileSafety = true
 }
 
 // :composeApp is a KMP library — shared UI + wiring consumed by :androidApp,
-// :iosApp (framework), and the desktop JVM binary. Phase 0 skeleton: no feature
-// modules wired yet.
+// :iosApp (framework), and the desktop JVM binary. Screens live here until a
+// second feature justifies :feature:* modules.
 kotlin {
     sourceSets {
         commonMain {
             dependencies {
+                implementation(projects.core.domain)
+                implementation(projects.core.data)
+
                 implementation(libs.bundles.koin.compose.common)
                 implementation(libs.kotlinx.serialization.json)
+
+                implementation(libs.jetbrains.lifecycle.viewmodel)
+                implementation(libs.jetbrains.compose.viewmodel)
+                implementation(libs.jetbrains.lifecycle.compose)
 
                 implementation(compose.runtime)
                 implementation(compose.foundation)

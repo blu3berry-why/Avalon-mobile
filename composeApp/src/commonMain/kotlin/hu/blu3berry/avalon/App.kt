@@ -20,7 +20,9 @@ import hu.blu3berry.avalon.auth.RegisterScreen
 import hu.blu3berry.avalon.core.domain.repository.AuthRepository
 import hu.blu3berry.avalon.core.domain.session.AuthEvent
 import hu.blu3berry.avalon.core.domain.session.SessionManager
+import hu.blu3berry.avalon.game.GameScreen
 import hu.blu3berry.avalon.home.HomeScreen
+import hu.blu3berry.avalon.lobby.LobbyScreen
 import hu.blu3berry.avalon.theme.AvalonTheme
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
@@ -34,6 +36,12 @@ data object RegisterRoute
 
 @Serializable
 data object HomeRoute
+
+@Serializable
+data class LobbyRoute(val lobbyCode: String)
+
+@Serializable
+data class GameRoute(val lobbyCode: String)
 
 @Composable
 fun App() {
@@ -98,7 +106,29 @@ private fun AvalonNavHost(
         }
         composable<HomeRoute> {
             HomeScreen(
+                onEnterLobby = { code -> navController.navigate(LobbyRoute(code)) },
                 onLogout = { scope.launch { authRepository.logout() } },
+            )
+        }
+        composable<LobbyRoute> { entry ->
+            val route = entry.toRoute<LobbyRoute>()
+            LobbyScreen(
+                lobbyCode = route.lobbyCode,
+                onGameStarted = {
+                    navController.navigate(GameRoute(route.lobbyCode)) {
+                        popUpTo<HomeRoute>()
+                    }
+                },
+                onLeft = { navController.popBackStack() },
+            )
+        }
+        composable<GameRoute> { entry ->
+            val route = entry.toRoute<GameRoute>()
+            GameScreen(
+                lobbyCode = route.lobbyCode,
+                onExit = {
+                    navController.navigate(HomeRoute) { popUpTo(0) { inclusive = true } }
+                },
             )
         }
     }

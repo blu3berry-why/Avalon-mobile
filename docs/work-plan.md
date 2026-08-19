@@ -21,7 +21,7 @@ placeholder and Koin wires no modules.
   - Verify: `./gradlew :core:data:desktopTest :core:domain:desktopTest` and a desktop
     build of `:composeApp` (see docs/dev-env-gotchas.md before debugging failures).
 
-- [ ] **Phase 3 — Lobby**
+- [x] **Phase 3 — Lobby**
   - Prerequisite (tracked in CLAUDE.md): remove the process-global `GameApi` singleton
     hazard in tests so screen-level tests can fake HTTP safely.
   - Home screen: create lobby (shows join code) / join by code.

@@ -10,7 +10,7 @@ placeholder and Koin wires no modules.
 
 ## Phases
 
-- [ ] **Phase 2 — Presentation foundation + auth**
+- [x] **Phase 2 — Presentation foundation + auth**
   - Wire `coreDataModule` into `initKoin` and each platform entry point.
   - MVI scaffolding (State/Action/Event base classes). Mirror rule applies: this shape
     mirrors Re-Claw; if the Re-Claw reference is unreachable from the session, implement

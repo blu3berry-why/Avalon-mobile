@@ -9,6 +9,9 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
+                implementation(projects.core.domain)
+                implementation(projects.core.data)
+
                 implementation(libs.bundles.koin.compose.common)
                 implementation(libs.kotlinx.serialization.json)
 
@@ -16,6 +19,11 @@ kotlin {
                 implementation(compose.foundation)
                 implementation(compose.material3)
                 implementation(compose.ui)
+
+                implementation(libs.jetbrains.compose.navigation)
+                implementation(libs.jetbrains.compose.viewmodel)
+                implementation(libs.jetbrains.lifecycle.viewmodel)
+                implementation(libs.jetbrains.lifecycle.compose)
             }
         }
         val desktopMain by getting {

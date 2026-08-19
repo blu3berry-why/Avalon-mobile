@@ -26,6 +26,7 @@ import org.koin.compose.viewmodel.koinViewModel
 @Composable
 fun HomeScreen(
     onEnterLobby: (String) -> Unit,
+    onProfileClick: () -> Unit,
     onLogout: () -> Unit,
     viewModel: HomeViewModel = koinViewModel(),
 ) {
@@ -79,6 +80,7 @@ fun HomeScreen(
             )
         }
 
+        TextButton(onClick = onProfileClick) { Text("Profile") }
         TextButton(onClick = onLogout) { Text("Log out") }
     }
 }

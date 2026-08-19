@@ -5,6 +5,7 @@ import hu.blu3berry.avalon.auth.RegisterViewModel
 import hu.blu3berry.avalon.core.data.di.coreDataModule
 import hu.blu3berry.avalon.game.GameViewModel
 import hu.blu3berry.avalon.home.HomeViewModel
+import hu.blu3berry.avalon.profile.ProfileViewModel
 import hu.blu3berry.avalon.lobby.LobbyViewModel
 import org.koin.core.context.startKoin
 import org.koin.core.module.dsl.viewModel
@@ -18,6 +19,7 @@ val appModule = module {
     }
     viewModelOf(::RegisterViewModel)
     viewModelOf(::HomeViewModel)
+    viewModelOf(::ProfileViewModel)
     viewModel { (lobbyCode: String) ->
         LobbyViewModel(lobbyRepository = get(), gameRepository = get(), lobbyCode = lobbyCode)
     }

@@ -6,6 +6,15 @@ plugins {
 // :iosApp (framework), and the desktop JVM binary. Phase 0 skeleton: no feature
 // modules wired yet.
 kotlin {
+    // The single iOS framework produced by this project (see CLAUDE.md — library modules
+    // build klibs only). Linking runs on macOS; Linux hosts stop at klib compilation.
+    listOf(iosArm64(), iosSimulatorArm64()).forEach { target ->
+        target.binaries.framework {
+            baseName = "ComposeApp"
+            isStatic = true
+        }
+    }
+
     sourceSets {
         commonMain {
             dependencies {

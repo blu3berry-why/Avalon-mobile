@@ -23,6 +23,7 @@ import hu.blu3berry.avalon.core.domain.session.SessionManager
 import hu.blu3berry.avalon.game.GameScreen
 import hu.blu3berry.avalon.home.HomeScreen
 import hu.blu3berry.avalon.lobby.LobbyScreen
+import hu.blu3berry.avalon.profile.ProfileScreen
 import hu.blu3berry.avalon.theme.AvalonTheme
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
@@ -42,6 +43,9 @@ data class LobbyRoute(val lobbyCode: String)
 
 @Serializable
 data class GameRoute(val lobbyCode: String)
+
+@Serializable
+data object ProfileRoute
 
 @Composable
 fun App() {
@@ -107,6 +111,7 @@ private fun AvalonNavHost(
         composable<HomeRoute> {
             HomeScreen(
                 onEnterLobby = { code -> navController.navigate(LobbyRoute(code)) },
+                onProfileClick = { navController.navigate(ProfileRoute) },
                 onLogout = { scope.launch { authRepository.logout() } },
             )
         }
@@ -121,6 +126,9 @@ private fun AvalonNavHost(
                 },
                 onLeft = { navController.popBackStack() },
             )
+        }
+        composable<ProfileRoute> {
+            ProfileScreen(onBack = { navController.popBackStack() })
         }
         composable<GameRoute> { entry ->
             val route = entry.toRoute<GameRoute>()

@@ -33,7 +33,7 @@ placeholder and Koin wires no modules.
     (`getCharacter`), king's team selection, team vote, adventure vote, assassin's
     Merlin guess, and the game outcome.
 
-- [ ] **Phase 5 — Profile + platform finish**
+- [x] **Phase 5 — Profile + platform finish**
   - Profile screen: view/update account, logout, delete account.
   - Platform sweep: `:androidApp:assembleRelease` (deny-all network config path),
     iOS framework build from `:composeApp`, desktop `run` smoke.
@@ -55,3 +55,17 @@ as many as possible in one session, but never at the cost of quality. Rules:
 ## Session log
 
 (Overnight sessions append blockers/carry-over notes here.)
+
+- 2026-08-19 (overnight): Phases 2–5 completed and pushed. Notes:
+  - Re-Claw reference was unreachable from the session, so the MVI scaffolding
+    (`composeApp/.../mvi/MviViewModel.kt`) is the standard State/Action/Event shape —
+    sync it against Re-Claw upstream before diverging further.
+  - iOS platform sweep ceiling: the session host is Linux, which can compile the iOS
+    klibs (`compileKotlinIosArm64` / `compileKotlinIosSimulatorArm64`, both green) and
+    registers the `linkDebugFramework*` / `linkReleaseFramework*` tasks for the newly
+    declared `ComposeApp` framework in `:composeApp`, but Apple framework *linking*
+    requires a macOS host — run `./gradlew :composeApp:linkReleaseFrameworkIosArm64`
+    there to finish the sweep.
+  - Desktop `run` smoke passed under Xvfb with `-Dskiko.renderApi=SOFTWARE_COMPAT`
+    (no GL in the sandbox's virtual display; software rendering is a test-env detail,
+    not an app requirement).

@@ -28,7 +28,7 @@ placeholder and Koin wires no modules.
   - Lobby screen: player list (poll `getPlayerNames`), settings view/edit
     (`LobbySettings`), leave, start → navigate to game.
 
-- [ ] **Phase 4 — Game**
+- [x] **Phase 4 — Game**
   - Game screen driven by `observeGameInfo` flow: phase-dependent UI for role reveal
     (`getCharacter`), king's team selection, team vote, adventure vote, assassin's
     Merlin guess, and the game outcome.

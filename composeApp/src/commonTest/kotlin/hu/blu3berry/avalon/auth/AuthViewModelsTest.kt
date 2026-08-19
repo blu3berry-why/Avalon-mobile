@@ -35,6 +35,7 @@ private class FakeAuthRepository : AuthRepository {
 
     override suspend fun logout() = Unit
     override suspend fun isLoggedIn(): Boolean = false
+    override suspend fun currentUsername(): String? = null
 }
 
 class AuthViewModelsTest {

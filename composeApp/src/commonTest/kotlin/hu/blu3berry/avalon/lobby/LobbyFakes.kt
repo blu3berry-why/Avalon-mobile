@@ -10,7 +10,7 @@ import hu.blu3berry.avalon.core.domain.result.DataError
 import hu.blu3berry.avalon.core.domain.result.EmptyResult
 import hu.blu3berry.avalon.core.domain.result.Result
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.MutableSharedFlow
 
 val defaultSettings = LobbySettings(
     assassin = true,
@@ -21,19 +21,31 @@ val defaultSettings = LobbySettings(
     arnold = false,
 )
 
-fun gameInfo(started: Boolean) = GameInfo(
+fun gameInfo(
+    started: Boolean = true,
+    winner: Winner = Winner.NOT_DECIDED,
+    scores: List<hu.blu3berry.avalon.core.domain.model.Score> = emptyList(),
+    currentRound: Int = 0,
+    isAdventure: Boolean = false,
+    currentAdventure: Int = 0,
+    king: String? = null,
+    selectedForAdventure: List<String> = emptyList(),
+    players: List<String> = emptyList(),
+    assassinHasGuessed: Boolean = false,
+    playerSelectNum: Int = 0,
+) = GameInfo(
     started = started,
-    winner = Winner.NOT_DECIDED,
-    scores = emptyList(),
-    currentRound = 0,
-    isAdventure = false,
-    currentAdventure = 0,
-    king = null,
+    winner = winner,
+    scores = scores,
+    currentRound = currentRound,
+    isAdventure = isAdventure,
+    currentAdventure = currentAdventure,
+    king = king,
     failCounter = 0,
-    selectedForAdventure = emptyList(),
-    players = emptyList(),
-    assassinHasGuessed = false,
-    playerSelectNum = 0,
+    selectedForAdventure = selectedForAdventure,
+    players = players,
+    assassinHasGuessed = assassinHasGuessed,
+    playerSelectNum = playerSelectNum,
 )
 
 class FakeLobbyRepository : LobbyRepository {
@@ -70,24 +82,40 @@ class FakeLobbyRepository : LobbyRepository {
 
 class FakeGameRepository : GameRepository {
     var gameInfoResult: Result<GameInfo, DataError.Network> = Result.Success(gameInfo(started = false))
+    var characterResult: Result<Character, DataError.Network> = Result.Failure(DataError.Network.NOT_FOUND)
 
-    override fun observeGameInfo(lobbyCode: String): Flow<Result<GameInfo, DataError.Network>> =
-        flowOf(gameInfoResult)
+    /** Hand-driven feed for [observeGameInfo]; tests emit into it. */
+    val infoFlow = MutableSharedFlow<Result<GameInfo, DataError.Network>>()
+
+    var selectForAdventureArgs: List<String>? = null
+    var voteOnTeamArgs: Pair<String, Boolean>? = null
+    var voteOnAdventureArgs: Pair<String, Boolean>? = null
+    var merlinGuess: String? = null
+
+    override fun observeGameInfo(lobbyCode: String): Flow<Result<GameInfo, DataError.Network>> = infoFlow
 
     override suspend fun getGameInfo(lobbyCode: String) = gameInfoResult
 
     override suspend fun getCharacter(lobbyCode: String): Result<Character, DataError.Network> =
-        Result.Failure(DataError.Network.NOT_FOUND)
+        characterResult
 
-    override suspend fun voteOnTeam(lobbyCode: String, username: String, approve: Boolean): EmptyResult<DataError.Network> =
-        Result.Success(Unit)
+    override suspend fun voteOnTeam(lobbyCode: String, username: String, approve: Boolean): EmptyResult<DataError.Network> {
+        voteOnTeamArgs = username to approve
+        return Result.Success(Unit)
+    }
 
-    override suspend fun voteOnAdventure(lobbyCode: String, username: String, succeed: Boolean): EmptyResult<DataError.Network> =
-        Result.Success(Unit)
+    override suspend fun voteOnAdventure(lobbyCode: String, username: String, succeed: Boolean): EmptyResult<DataError.Network> {
+        voteOnAdventureArgs = username to succeed
+        return Result.Success(Unit)
+    }
 
-    override suspend fun selectForAdventure(lobbyCode: String, players: List<String>): EmptyResult<DataError.Network> =
-        Result.Success(Unit)
+    override suspend fun selectForAdventure(lobbyCode: String, players: List<String>): EmptyResult<DataError.Network> {
+        selectForAdventureArgs = players
+        return Result.Success(Unit)
+    }
 
-    override suspend fun guessMerlin(lobbyCode: String, username: String): EmptyResult<DataError.Network> =
-        Result.Success(Unit)
+    override suspend fun guessMerlin(lobbyCode: String, username: String): EmptyResult<DataError.Network> {
+        merlinGuess = username
+        return Result.Success(Unit)
+    }
 }

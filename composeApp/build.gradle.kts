@@ -6,9 +6,21 @@ plugins {
 // :iosApp (framework), and the desktop JVM binary. Phase 0 skeleton: no feature
 // modules wired yet.
 kotlin {
+    // The single iOS framework produced by this project (see CLAUDE.md — library modules
+    // build klibs only). Linking runs on macOS; Linux hosts stop at klib compilation.
+    listOf(iosArm64(), iosSimulatorArm64()).forEach { target ->
+        target.binaries.framework {
+            baseName = "ComposeApp"
+            isStatic = true
+        }
+    }
+
     sourceSets {
         commonMain {
             dependencies {
+                implementation(projects.core.domain)
+                implementation(projects.core.data)
+
                 implementation(libs.bundles.koin.compose.common)
                 implementation(libs.kotlinx.serialization.json)
 
@@ -16,6 +28,11 @@ kotlin {
                 implementation(compose.foundation)
                 implementation(compose.material3)
                 implementation(compose.ui)
+
+                implementation(libs.jetbrains.compose.navigation)
+                implementation(libs.jetbrains.compose.viewmodel)
+                implementation(libs.jetbrains.lifecycle.viewmodel)
+                implementation(libs.jetbrains.lifecycle.compose)
             }
         }
         val desktopMain by getting {

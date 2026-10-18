@@ -1,10 +1,9 @@
 package hu.blu3berry.avalon.core.data.repository
 
 import app.cash.turbine.test
-import hu.blu3berry.avalon.core.data.network.AvalonJson
-import hu.blu3berry.avalon.core.data.network.createHttpClient
+import hu.blu3berry.avalon.core.data.network.jsonEngine
+import hu.blu3berry.avalon.core.data.network.useGameApiEngine
 import hu.blu3berry.avalon.core.data.session.SessionManagerImpl
-import hu.blu3berry.avalon.core.data.storage.InMemoryTokenStorage
 import hu.blu3berry.avalon.core.domain.model.GameInfo
 import hu.blu3berry.avalon.core.domain.model.Winner
 import hu.blu3berry.avalon.core.domain.result.DataError
@@ -15,7 +14,6 @@ import io.ktor.client.engine.mock.respond
 import io.ktor.client.engine.mock.respondError
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
-import io.ktor.http.Url
 import io.ktor.http.headersOf
 import io.ktor.http.HttpHeaders
 import kotlinx.coroutines.test.runTest
@@ -23,7 +21,6 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlin.time.Duration.Companion.milliseconds
-import hu.blu3berry.avalon.core.data.generated.game.Api as GameApi
 
 /**
  * Exercises the repository through a mocked transport rather than a mocked data source, so the
@@ -48,38 +45,10 @@ class GameRepositoryImplTest {
         }
     """.trimIndent()
 
-    /** Points the process-wide generated `Api` at [engine]. */
-    private fun useEngine(engine: MockEngine, sessionManager: SessionManagerImpl) {
-        GameApi.baseUrl = Url("http://avalon.test/")
-        GameApi.updateClient(
-            json = AvalonJson,
-            createHttpClient = { decorator ->
-                createHttpClient(
-                    engine = engine,
-                    tokenStorage = InMemoryTokenStorage(),
-                    decorator = decorator,
-                )
-            },
-        )
-    }
-
-    /** Replies with [bodies] in order, repeating the last one for every further poll. */
-    private fun jsonEngine(vararg bodies: String): MockEngine {
-        var call = 0
-        return MockEngine {
-            val body = bodies[call.coerceAtMost(bodies.lastIndex)]
-            call++
-            respond(
-                content = body,
-                headers = headersOf(HttpHeaders.ContentType, ContentType.Application.Json.toString()),
-            )
-        }
-    }
-
     @Test
     fun `getGameInfo maps the response onto the domain model`() = runTest {
         val sessionManager = SessionManagerImpl()
-        useEngine(jsonEngine(infoJson("GOOD")), sessionManager)
+        useGameApiEngine(jsonEngine(infoJson("GOOD")))
 
         val result = GameRepositoryImpl(sessionManager).getGameInfo("ABCD")
 
@@ -92,7 +61,7 @@ class GameRepositoryImplTest {
     fun `observeGameInfo keeps polling and only re-emits on change`() = runTest {
         val sessionManager = SessionManagerImpl()
         // First poll NOT_DECIDED, every later poll GOOD: three ticks, two distinct emissions.
-        useEngine(jsonEngine(infoJson("NOT_DECIDED"), infoJson("GOOD")), sessionManager)
+        useGameApiEngine(jsonEngine(infoJson("NOT_DECIDED"), infoJson("GOOD")))
 
         val repository = GameRepositoryImpl(sessionManager, pollInterval = 10.milliseconds)
 
@@ -122,7 +91,7 @@ class GameRepositoryImplTest {
                 )
             }
         }
-        useEngine(engine, sessionManager)
+        useGameApiEngine(engine)
 
         val repository = GameRepositoryImpl(sessionManager, pollInterval = 10.milliseconds)
 
@@ -140,12 +109,11 @@ class GameRepositoryImplTest {
     fun `a 401 stops the poll loop instead of re-raising the event every tick`() = runTest {
         val sessionManager = SessionManagerImpl()
         var calls = 0
-        useEngine(
+        useGameApiEngine(
             MockEngine {
                 calls++
                 respondError(HttpStatusCode.Unauthorized)
             },
-            sessionManager,
         )
 
         val repository = GameRepositoryImpl(sessionManager, pollInterval = 10.milliseconds)
@@ -164,7 +132,7 @@ class GameRepositoryImplTest {
     @Test
     fun `a 401 raises a session-expired event`() = runTest {
         val sessionManager = SessionManagerImpl()
-        useEngine(MockEngine { respondError(HttpStatusCode.Unauthorized) }, sessionManager)
+        useGameApiEngine(MockEngine { respondError(HttpStatusCode.Unauthorized) })
 
         sessionManager.events.test {
             GameRepositoryImpl(sessionManager).getGameInfo("ABCD")

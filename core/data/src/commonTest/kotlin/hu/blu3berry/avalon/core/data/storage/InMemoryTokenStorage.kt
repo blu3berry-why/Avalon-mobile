@@ -6,5 +6,8 @@ class InMemoryTokenStorage : TokenStorage {
     override suspend fun hasToken(): Boolean = token != null
     override suspend fun getToken(): String? = token
     override suspend fun saveToken(token: String) { this.token = token }
-    override suspend fun clear() { token = null }
+    private var username: String? = null
+    override suspend fun getUsername(): String? = username
+    override suspend fun saveUsername(username: String) { this.username = username }
+    override suspend fun clear() { token = null; username = null }
 }

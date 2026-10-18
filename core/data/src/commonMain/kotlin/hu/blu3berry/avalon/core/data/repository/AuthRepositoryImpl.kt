@@ -28,7 +28,10 @@ class AuthRepositoryImpl(
     override suspend fun login(username: String, password: String): EmptyResult<DataError.Network> =
         DefaultApi.login(Credentials(username = username, password = password))
             .toResult()
-            .onSuccess { token -> tokenStorage.saveToken(token.token) }
+            .onSuccess { token ->
+                tokenStorage.saveToken(token.token)
+                tokenStorage.saveUsername(token.username)
+            }
             .asEmptyDataResult()
 
     override suspend fun register(
@@ -46,4 +49,6 @@ class AuthRepositoryImpl(
     }
 
     override suspend fun isLoggedIn(): Boolean = tokenStorage.hasToken()
+
+    override suspend fun currentUsername(): String? = tokenStorage.getUsername()
 }

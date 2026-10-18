@@ -22,4 +22,7 @@ interface AuthRepository {
     suspend fun logout()
 
     suspend fun isLoggedIn(): Boolean
+
+    /** Username the current session was authenticated as; null when logged out. */
+    suspend fun currentUsername(): String?
 }
